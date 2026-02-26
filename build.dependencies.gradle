@@ -1,0 +1,30 @@
+repositories {
+    mavenCentral()
+    google() // Needed for androidx
+    maven { url = 'https://maven.pedropathing.com' }
+    maven { url = "https://mymaven.bylazar.com/releases" }
+}
+
+dependencies {
+    //implementation 'androidx.xr.runtime:runtime:1.0.0-alpha09'
+    //implementation 'com.google.ar.sceneform:sceneform-base:1.17.1'
+    implementation 'org.firstinspires.ftc:Inspection:11.0.0'
+    implementation 'org.firstinspires.ftc:Blocks:11.0.0'
+    implementation 'org.firstinspires.ftc:RobotCore:11.0.0'
+    implementation 'org.firstinspires.ftc:RobotServer:11.0.0'
+    implementation 'org.firstinspires.ftc:OnBotJava:11.0.0'
+    implementation 'org.firstinspires.ftc:Hardware:11.0.0'
+    implementation 'org.firstinspires.ftc:FtcCommon:11.0.0'
+    implementation 'org.firstinspires.ftc:Vision:11.0.0'
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+
+    implementation 'com.pedropathing:ftc:2.0.4'
+    implementation 'com.pedropathing:telemetry:1.0.0'
+    implementation 'com.bylazar:fullpanels:1.0.11'
+    implementation 'dev.nextftc.extensions:pedro:1.0.0'
+
+    // These are the important ones for Limelight
+    //implementation 'com.qualcomm.hardware.limelightvision:limelightlib:1.0.2'
+    //implementation 'org.openftc:rev-extensions2:1.2.2'  // sometimes needed too
+}
+
