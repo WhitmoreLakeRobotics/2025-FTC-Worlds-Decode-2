@@ -16,8 +16,10 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Hardware.Robot;
 
-@Autonomous(name = "ppAutonTesting", group = "PP")
-public class ppAutonTesting extends OpMode {
+
+
+@Autonomous(name = "ppAutonbase", group = "PP")
+public class ppAutonBase extends OpMode {
 
     Robot robot = new Robot();
 
@@ -101,7 +103,7 @@ public class ppAutonTesting extends OpMode {
     @Override
     public void loop() {
 
-updateTelemetry();
+        updateTelemetry();
         telemetry.addData("Auton_Current_Stage ", currentStage);
         robot.autonLoop();
         follower.update();
@@ -118,7 +120,7 @@ updateTelemetry();
                 if (!follower.isBusy()) {
                     follower.followPath(cyclePickup1,  true);
                     //lastPose = startPose;
-                   /* currentTargetPose = scorePose;*/
+                    /* currentTargetPose = scorePose;*/
                     // follower.update();
                     robot.intake.cmdFoward();
                     currentStage = stage._30_RunningCornerPickup;
@@ -128,70 +130,70 @@ updateTelemetry();
 
             case _30_RunningCornerPickup:
                 if (follower.isBusy()) {
-                    
+
                     telemetryMU.addData("Cornor pickup", follower.getPose());
                 }else {
                     currentStage = stage._40_end;
                 }
-                    break;
+                break;
             case _40_end:
                 if (!follower.isBusy()) {
                     telemetryMU.addData("Drive Complete?", follower.isBusy());
-stop();
+                    stop();
                     runtime.reset();
                 }
                 break;
 
 
 
-}
-
         }
 
+    }
 
 
-        @Override
-        public void stop () {
-            //super.stop();
-            robot.stop();
-        }
-        private enum stage {
 
-            _00_unknown,
-            _10_preStart,
-            _20_cyclePickup1,
-            _30_RunningCornerPickup,
-            _40_end;
+    @Override
+    public void stop () {
+        //super.stop();
+        robot.stop();
+    }
+    private enum stage {
 
-
-        }
+        _00_unknown,
+        _10_preStart,
+        _20_cyclePickup1,
+        _30_RunningCornerPickup,
+        _40_end;
 
 
-        private void updateTelemetry () {
-            telemetryMU.addData("Follower Busy?", follower.isBusy());
-            telemetryMU.addData("Current Stage", currentStage);
-            telemetryMU.addData("x", follower.getPose().getX());
-            telemetryMU.addData("y", follower.getPose().getY());
-            telemetryMU.addData("heading", Math.toDegrees(follower.getPose().getHeading()));
-            //  telemetryMU.addData("LAST Pose", lastPose);
-            //  telemetryMU.addData("Current Target Pose", currentTargetPose);
-            telemetryMU.addData("breakingStrength", pathConstraints.getBrakingStrength());
-            telemetryMU.addData("breakstart ", pathConstraints.getBrakingStart());
-            telemetryMU.addData("drivepid P", follower.constants.coefficientsDrivePIDF.P);
-            telemetryMU.addData("drivepid D", follower.constants.coefficientsDrivePIDF.D);
-            telemetryMU.addData("drivepid F", follower.constants.coefficientsDrivePIDF.F);
-            telemetryMU.addData("CONSTRAINTS", "");
-            telemetryMU.addData("Tvalue (% complete)", follower.pathConstraints.getTValueConstraint());
-            telemetryMU.addData("Current tValue", follower.getCurrentTValue());
-            telemetryMU.addData("Velocity Constraint", follower.pathConstraints.getVelocityConstraint());
-            telemetryMU.addData("Current Velocity", follower.getVelocity());
-            telemetryMU.addData("Trans constraint", follower.pathConstraints.getTranslationalConstraint());
-            // telemetryMU.addData("current Trans", follower.getTranslationalError());
-            telemetryMU.addData("Heading Constraint", follower.pathConstraints.getHeadingConstraint());
+    }
 
-            telemetryMU.update();
-            Drawing.drawDebug(follower);
-        }
+
+    private void updateTelemetry () {
+        telemetryMU.addData("Follower Busy?", follower.isBusy());
+        telemetryMU.addData("Current Stage", currentStage);
+        telemetryMU.addData("x", follower.getPose().getX());
+        telemetryMU.addData("y", follower.getPose().getY());
+        telemetryMU.addData("heading", Math.toDegrees(follower.getPose().getHeading()));
+        //  telemetryMU.addData("LAST Pose", lastPose);
+        //  telemetryMU.addData("Current Target Pose", currentTargetPose);
+        telemetryMU.addData("breakingStrength", pathConstraints.getBrakingStrength());
+        telemetryMU.addData("breakstart ", pathConstraints.getBrakingStart());
+        telemetryMU.addData("drivepid P", follower.constants.coefficientsDrivePIDF.P);
+        telemetryMU.addData("drivepid D", follower.constants.coefficientsDrivePIDF.D);
+        telemetryMU.addData("drivepid F", follower.constants.coefficientsDrivePIDF.F);
+        telemetryMU.addData("CONSTRAINTS", "");
+        telemetryMU.addData("Tvalue (% complete)", follower.pathConstraints.getTValueConstraint());
+        telemetryMU.addData("Current tValue", follower.getCurrentTValue());
+        telemetryMU.addData("Velocity Constraint", follower.pathConstraints.getVelocityConstraint());
+        telemetryMU.addData("Current Velocity", follower.getVelocity());
+        telemetryMU.addData("Trans constraint", follower.pathConstraints.getTranslationalConstraint());
+        // telemetryMU.addData("current Trans", follower.getTranslationalError());
+        telemetryMU.addData("Heading Constraint", follower.pathConstraints.getHeadingConstraint());
+
+        telemetryMU.update();
+        Drawing.drawDebug(follower);
+    }
 
 
 }
