@@ -177,18 +177,22 @@ public class Tele_Op extends OpMode {
            tHeading = (int)Math.round(robot.targetAngleCalc());
             bAutoTurn = true;
         }
-        //AutoAim tied to Left Trigger hold
+        // AUTO AIM — chassis turning (MJD)
         if (gamepad1.left_trigger > 0.2) {
 
-            // MJD — allow auto aim to run
+            // Enable auto aim
             robot.autoAim.setDriverOverride(false);
 
-            double angle = robot.autoAim.computeAimAngle();
+            // Compute yaw from 3D AutoAim
+            double yaw = robot.autoAim.computeAimAngle();
 
-            if (!Double.isNaN(angle)) {
-                int heading = (int)Math.round(angle);
+            // Only run auto-turn if yaw is valid
+            if (!Double.isNaN(yaw)) {
 
-                // MJD — auto-turn robot chassis toward tag
+                // Convert yaw (robot-relative) into a heading target
+                int heading = (int)Math.round(yaw);
+
+                // Drive with auto-turn applied
                 robot.driveTrain.cmdTeleOp(
                         CommonLogic.joyStickMath(gamepad1.left_stick_y * -1),
                         CommonLogic.joyStickMath(gamepad1.left_stick_x),
@@ -199,10 +203,11 @@ public class Tele_Op extends OpMode {
 
         } else {
 
-            // MJD — driver regains full control when trigger released
+            // Disable auto aim when LT released
             robot.autoAim.setDriverOverride(true);
 
         }
+
 
 
 

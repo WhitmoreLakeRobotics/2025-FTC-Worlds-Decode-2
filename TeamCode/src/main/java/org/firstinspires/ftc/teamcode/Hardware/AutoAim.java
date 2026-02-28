@@ -6,18 +6,24 @@ public class AutoAim {
 
     private final Limey limey;
     private final Turret turret;
-    private final DriveTrain driveTrain;   // MJD — added so we can read robot heading
+    private final DriveTrain driveTrain;
 
     private boolean driverOverride = true;
 
     // Distance behind the tag to aim at
     private static final double OFFSET_INCHES = 8.0;
-    private static final double OFFSET = OFFSET_INCHES * 0.0254;  // convert to meters for botpose
+    private static final double OFFSET = OFFSET_INCHES * 0.0254;  // meters
+
+    //launcher position in robot space (meters)
+    // If launcher is at robot center, leave these 0.
+    private static final double LAUNCHER_X = 0.0;   // MJD
+    private static final double LAUNCHER_Y = 0.0;   // MJD
+    private static final double LAUNCHER_Z = 0.0;   // MJD
 
     public AutoAim(Limey limey, Turret turret, DriveTrain driveTrain) {
         this.limey = limey;
         this.turret = turret;
-        this.driveTrain = driveTrain;   // MJD — store drivetrain reference
+        this.driveTrain = driveTrain;
     }
 
     public void setDriverOverride(boolean override) {
@@ -27,26 +33,27 @@ public class AutoAim {
     public double computeAimAngle() {
 
         /*
-        // No tag detected
+        2D CAMERA-ANGLE
+        */
+
+        /*
         if (limey.getTagID() == -1) {
             return Double.NaN;
         }
 
-        // Horizontal angle to tag (degrees)
         double tx = limey.getTx();
         if (Double.isNaN(tx)) {
             return Double.NaN;
         }
 
-        // Vertical angle to tag (degrees)
         double ty = limey.getTy();
         if (Double.isNaN(ty)) {
             return Double.NaN;
         }
 
-        double cameraHeight = 11.0;      // inches — adjust for your robot
-        double targetHeight = 14.375;    // inches — FTC backdrop tag height
-        double cameraAngle = 25.0;       // degrees — adjust for your mount
+        double cameraHeight = 11.0;
+        double targetHeight = 14.375;
+        double cameraAngle = 25.0;
 
         double cameraAngleRad = Math.toRadians(cameraAngle + ty);
         double distanceInches = (targetHeight - cameraHeight) / Math.tan(cameraAngleRad);
@@ -63,44 +70,128 @@ public class AutoAim {
         return desiredHeading;
         */
 
-        double[] tp = limey.getBotposeTargetSpace();  // MJD
-        if (tp == null || tp.length < 6) return Double.NaN;  // MJD
+        /*
+        OLD BOTPOSE TARGET SPACE CODE
+        PRESERVED BUT DISABLED — MJD
+        */
 
-        double x = tp[0];   // robot X relative to tag (meters) — MJD
-        double y = tp[1];   // robot Y relative to tag (meters) — MJD
-        double tagYaw = tp[5]; // robot yaw relative to tag (degrees) — MJD
+        /*
+        double[] tp = limey.getBotposeTargetSpace();
+        if (tp == null || tp.length < 6) return Double.NaN;
 
-        double angleToTag = Math.toDegrees(Math.atan2(y, x));  // MJD
+        double x = tp[0];
+        double y = tp[1];
+        double tagYaw = tp[5];
 
-        double offsetX = OFFSET * Math.cos(Math.toRadians(tagYaw));  // MJD
-        double offsetY = OFFSET * Math.sin(Math.toRadians(tagYaw));  // MJD
+        double angleToTag = Math.toDegrees(Math.atan2(y, x));
 
-        double aimX = x - offsetX;  // MJD
-        double aimY = y - offsetY;  // MJD
+        double offsetX = OFFSET * Math.cos(Math.toRadians(tagYaw));
+        double offsetY = OFFSET * Math.sin(Math.toRadians(tagYaw));
 
-        double angleToAimPoint = Math.toDegrees(Math.atan2(aimY, aimX));  // MJD
+        double aimX = x - offsetX;
+        double aimY = y - offsetY;
 
-        double robotHeading = driveTrain.getCurrentHeading();  // MJD
+        double angleToAimPoint = Math.toDegrees(Math.atan2(aimY, aimX));
 
-        double desiredHeading = robotHeading + angleToAimPoint;  // MJD
+        double robotHeading = driveTrain.getCurrentHeading();
 
-        desiredHeading = ((desiredHeading + 540) % 360) - 180;  // MJD
+        double desiredHeading = robotHeading + angleToAimPoint;
 
-        return desiredHeading;  // MJD
+        desiredHeading = ((desiredHeading + 540) % 360) - 180;
+
+        return desiredHeading;
+        */
+
+        //NEW 3D AUTO AIM
+        if (limey.getTagID() == -1) return Double.NaN;   // MJD
+
+        double[] tag = limey.getTagPoseRobotSpace3D();   // MJD
+        if (tag == null || tag.length < 3) return Double.NaN;  // MJD
+
+        double tagX = tag[0];   // left/right — MJD
+        double tagY = tag[1];   // forward/back — MJD
+        double tagZ = tag[2];   // height — MJD
+
+        // Compute distance from launcher → tag
+        double dx = tagX - LAUNCHER_X;   // MJD
+        double dy = tagY - LAUNCHER_Y;   // MJD
+        double dz = tagZ - LAUNCHER_Z;   // MJD
+
+        double dist = Math.sqrt(dx*dx + dy*dy + dz*dz);  // MJD
+        if (dist < 1e-6) return Double.NaN;              // MJD
+
+        // Unit direction vector from launcher → tag
+        double ux = dx / dist;   // MJD
+        double uy = dy / dist;   // MJD
+        double uz = dz / dist;   // MJD
+
+        // Move aim point 8 inches behind tag
+        double aimX = tagX - ux * OFFSET;   // MJD
+        double aimY = tagY - uy * OFFSET;   // MJD
+        double aimZ = tagZ - uz * OFFSET;   // MJD
+
+        // Vector from launcher → aim point
+        double ax = aimX - LAUNCHER_X;   // MJD
+        double ay = aimY - LAUNCHER_Y;   // MJD
+        double az = aimZ - LAUNCHER_Z;   // MJD
+
+        // Compute yaw (left/right)
+        double yawDeg = Math.toDegrees(Math.atan2(ax, ay));   // MJD
+
+        // Compute pitch (up/down)
+        double horizDist = Math.sqrt(ax*ax + ay*ay);          // MJD
+        double pitchDeg = Math.toDegrees(Math.atan2(az, horizDist));  // MJD
+
+        // Normalize yaw
+        yawDeg = ((yawDeg + 540) % 360) - 180;   // MJD
+
+        // If turret only uses yaw, return yaw
+        return yawDeg;   // MJD
     }
 
-    // AutoAim drives the turret ONLY when override is off.
+    public double computePitchAngle() {   // MJD
+        if (limey.getTagID() == -1) return Double.NaN;
+
+        double[] tag = limey.getTagPoseRobotSpace3D();
+        if (tag == null || tag.length < 3) return Double.NaN;
+
+        double tagX = tag[0];
+        double tagY = tag[1];
+        double tagZ = tag[2];
+
+        double dx = tagX - LAUNCHER_X;
+        double dy = tagY - LAUNCHER_Y;
+        double dz = tagZ - LAUNCHER_Z;
+
+        double dist = Math.sqrt(dx*dx + dy*dy + dz*dz);
+        if (dist < 1e-6) return Double.NaN;
+
+        double ux = dx / dist;
+        double uy = dy / dist;
+        double uz = dz / dist;
+
+        double aimX = tagX - ux * OFFSET;
+        double aimY = tagY - uy * OFFSET;
+        double aimZ = tagZ - uz * OFFSET;
+
+        double ax = aimX - LAUNCHER_X;
+        double ay = aimY - LAUNCHER_Y;
+        double az = aimZ - LAUNCHER_Z;
+
+        double horizDist = Math.sqrt(ax*ax + ay*ay);
+        return Math.toDegrees(Math.atan2(az, horizDist));   // MJD
+    }
+
     public void update() {
 
-        // If driver override OR turret is missing, do nothing
         if (driverOverride || turret == null) {
             return;
         }
 
-        double angle = computeAimAngle();
-        if (Double.isNaN(angle)) return;
+        double yaw = computeAimAngle();
+        if (Double.isNaN(yaw)) return;
 
-        turret.setTargetAngle(angle);
+        turret.setTargetAngle(yaw);   // MJD — yaw only for now
     }
 
 }
