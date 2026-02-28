@@ -24,7 +24,7 @@ public class ppAutonTesting extends OpMode {
 
     private String thisUpdate = "0";
     private TelemetryManager telemetryMU;
-    private stage currentStage;
+    private stage currentStage = stage._00_unknown;
     private ElapsedTime runtime = new ElapsedTime();
 
 
@@ -51,8 +51,8 @@ public class ppAutonTesting extends OpMode {
 
                 .addPath(new BezierLine(pickup1aPose, pickup1bPose))
                 .setLinearHeadingInterpolation(pickup1aPose.getHeading(), pickup1bPose.getHeading())
-                .addPath(new BezierCurve(pickup1bPose, scorePoseAP))
 
+                .addPath(new BezierCurve(pickup1bPose, scorePoseAP))
                 .setLinearHeadingInterpolation(pickup1bPose.getHeading(), scorePose.getHeading())
 
                 .build();
@@ -75,9 +75,10 @@ public class ppAutonTesting extends OpMode {
 // disp[lay starting postition
         telemetryMU.addData("initialized postition - Update ", thisUpdate);
 // Feedback to Driver Hub for debugging
-        updateTelemetry(telemetry);//this might break the code  :)
+        updateTelemetry();
 
-
+        robot.hardwareMap = hardwareMap;
+        robot.telemetry = telemetry;
         robot.init();
     }
 
@@ -100,7 +101,7 @@ public class ppAutonTesting extends OpMode {
     @Override
     public void loop() {
 
-
+updateTelemetry();
         telemetry.addData("Auton_Current_Stage ", currentStage);
         robot.autonLoop();
         follower.update();
@@ -115,7 +116,7 @@ public class ppAutonTesting extends OpMode {
 
             case _20_cyclePickup1:
                 if (!follower.isBusy()) {
-                    follower.followPath(scorePreload,  true);
+                    follower.followPath(cyclePickup1,  true);
                     //lastPose = startPose;
                    /* currentTargetPose = scorePose;*/
                     // follower.update();
@@ -125,7 +126,7 @@ public class ppAutonTesting extends OpMode {
             case _40_end:
                 if (!follower.isBusy()) {
                     telemetryMU.addData("Drive Complete?", follower.isBusy());
-
+stop();
                     runtime.reset();
                 }
                 break;
@@ -156,7 +157,7 @@ public class ppAutonTesting extends OpMode {
 
         private void updateTelemetry () {
             telemetryMU.addData("Follower Busy?", follower.isBusy());
-            // telemetryMU.addData("Current Stage", currentStage);
+            telemetryMU.addData("Current Stage", currentStage);
             telemetryMU.addData("x", follower.getPose().getX());
             telemetryMU.addData("y", follower.getPose().getY());
             telemetryMU.addData("heading", Math.toDegrees(follower.getPose().getHeading()));
