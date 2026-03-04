@@ -14,6 +14,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.Hardware.Intake;
 import org.firstinspires.ftc.teamcode.Hardware.Robot;
 
 @Autonomous(name = "ppAutonTesting", group = "PP")
@@ -41,7 +42,7 @@ public class ppAutonTesting extends OpMode {
 
     private PathChain scorePreload;
     private PathChain grabPickup1, grabPickup1a, grabPickup1b, grabPickup1c, scorePickup1, grabPickup2a, grabPickup2b, scorePickup2, goEndPose, goEndPose2, endPath;
-    private PathChain cyclePickup1;
+    private PathChain cyclePickup1, interruptedPickup;
 
 
     public void buildPaths() {
@@ -115,26 +116,62 @@ updateTelemetry();
                 break;
 
             case _20_cyclePickup1:
-                if (!follower.isBusy()) {
-                    follower.followPath(cyclePickup1,  true);
-                    //lastPose = startPose;
-                   /* currentTargetPose = scorePose;*/
-                    // follower.update();
-                    robot.intake.cmdFoward();
-                    currentStage = stage._30_RunningCornerPickup;
-                }
+                if (!follower.isBusy() || runtime.milliseconds() > 3500) {
+                     follower.followPath(cyclePickup1, true);
+                    //if we have 3 artifacts stop the path and go to next stage
+                    if (robot.intake.CurrentColor == Intake.Color.RED){
+                        follower.breakFollowing();
+                        currentStage =stage._30_RunningCornerPickup;
+                        runtime.reset();
 
+                    }
+                  /*  if (runtime.milliseconds() < 300 ){
+                        follower.turnToDegrees(185);
+                    }
+                    else{
+                        follower.turnToDegrees(175); //wiggle to pick up more
+                    }*/
+                    // lastPose = currentTargetPose;
+                    //currentTargetPose = pickup1cPose;
+                    currentStage = stage._25_PickupWiggle;
+                    runtime.reset();
+                }
                 break;
+
+
+
 
             case _30_RunningCornerPickup:
                 if (follower.isBusy()) {
-                    
-                    telemetryMU.addData("Cornor pickup", follower.getPose());
+                    if (robot.intake.CurrentColor == Intake.Color.RED){
+                        follower.breakFollowing();
+                        currentStage =stage._30_RunningCornerPickup;
+                        runtime.reset();
+                        buildPaths();{
+                            interruptedPickup = follower.pathBuilder()
+                                    .addPath(new BezierLine(follower.getPose(), scorePose)).build();
+                        }
+
+                    }
+                    telemetryMU.addData("Corner pickup", follower.getPose());
                 }else {
-                    currentStage = stage._40_end;
+                    currentStage = stage._40_Launch1;
                 }
                     break;
-            case _40_end:
+
+            case _40_Launch1:
+                if (follower.isBusy()){
+
+                   robot.launcher.cmdOutfar();
+                    robot.intake.cmdFoward();
+                    robot.transitionRoller.cmdSpin();
+                    robot.launcherBlocker.cmdUnBlock(); //ask if method works
+                    runtime.reset();
+
+                }
+                currentStage = stage._100_end;
+
+            case _100_end:
                 if (!follower.isBusy()) {
                     telemetryMU.addData("Drive Complete?", follower.isBusy());
 stop();
@@ -160,11 +197,27 @@ stop();
             _00_unknown,
             _10_preStart,
             _20_cyclePickup1,
+            _25_PickupWiggle,
             _30_RunningCornerPickup,
-            _40_end;
+            _40_Launch1,
+            _100_end;
 
 
         }
+
+        private void launch_process(){
+
+
+        robot.launcher.cmdOutfar();
+        robot.intake.cmdFoward();
+        robot.transitionRoller.cmdSpin();
+        robot.launcherBlocker.cmdUnBlock();
+        runtime.reset();
+
+
+
+
+    }
 
 
         private void updateTelemetry () {
