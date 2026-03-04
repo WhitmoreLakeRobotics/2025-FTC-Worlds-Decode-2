@@ -1,8 +1,9 @@
 package org.firstinspires.ftc.teamcode.Hardware;
 
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
-
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Field.DecodeField;
+import org.firstinspires.ftc.teamcode.Field.DecodeField.TagPose;
 
 public class AutoAim {
 
@@ -32,13 +33,44 @@ public class AutoAim {
         this.driverOverride = override;
     }
 
+    // FIELD-BASED AUTO AIM — MJD
+    public double computeAimAngle() {   // MJD
+
+        // Must see a tag
+        if (limey.getTagID() == -1) return Double.NaN;   // MJD
+
+        //  Robot pose from Limey
+        double[] robot = limey.getRobotPoseFieldSpace();   // MJD
+        if (robot == null || robot.length < 3) return Double.NaN;   // MJD
+
+        double robotX = robot[0];   // MJD
+        double robotY = robot[1];   // MJD
+        double robotHeading = driveTrain.getCurrentHeading();  // MJD
+
+        //  Tag pose from field map — MJD
+        TagPose tag = DecodeField.getTagPose(limey.getTagID());   // MJD
+        if (tag == null) return Double.NaN;   // MJD
+
+        double tagX = tag.x;   // MJD
+        double tagY = tag.y;   // MJD
+
+        //  Angle from robot → tag in field space — MJD
+        double angleToTag = Math.toDegrees(Math.atan2(tagY - robotY, tagX - robotX));   // MJD
+
+        //  Convert field angle → robot-relative heading — MJD
+        double desiredHeading = angleToTag - robotHeading;   // MJD
+
+        // Normalize to [-180,180] — MJD
+        desiredHeading = ((desiredHeading + 540) % 360) - 180;   // MJD
+
+        return desiredHeading;   // MJD
+    }
+
+    // OLD CAMERA-ANGLE AUTO AIM — MJD
+
+    /*
     public double computeAimAngle() {
 
-        /*
-        2D CAMERA-ANGLE
-        */
-
-        /*
         if (limey.getTagID() == -1) {
             return Double.NaN;
         }
@@ -70,14 +102,14 @@ public class AutoAim {
         desiredHeading = ((desiredHeading + 540) % 360) - 180;
 
         return desiredHeading;
-        */
+    }
+    */
 
-        /*
-        OLD BOTPOSE TARGET SPACE CODE
-        PRESERVED BUT DISABLED — MJD
-        */
+    // OLD BOTPOSE TARGET SPACE AUTO AIM — MJD
 
-        /*
+    /*
+    public double computeAimAngle() {
+
         double[] tp = limey.getBotposeTargetSpace();
         if (tp == null || tp.length < 6) return Double.NaN;
 
@@ -102,56 +134,54 @@ public class AutoAim {
         desiredHeading = ((desiredHeading + 540) % 360) - 180;
 
         return desiredHeading;
-        */
-
-        //NEW 3D AUTO AIM
-        if (limey.getTagID() == -1) return Double.NaN;   // MJD
-
-        double[] tag = limey.getTagPoseRobotSpace3D();   // MJD
-        if (tag == null || tag.length < 3) return Double.NaN;  // MJD
-
-        double tagX = tag[0];   // left/right — MJD
-        double tagY = tag[1];   // forward/back — MJD
-        double tagZ = tag[2];   // height — MJD
-
-        // Compute distance from launcher → tag
-        double dx = tagX - LAUNCHER_X;   // MJD
-        double dy = tagY - LAUNCHER_Y;   // MJD
-        double dz = tagZ - LAUNCHER_Z;   // MJD
-
-        double dist = Math.sqrt(dx*dx + dy*dy + dz*dz);  // MJD
-        if (dist < 1e-6) return Double.NaN;              // MJD
-
-        // Unit direction vector from launcher → tag
-        double ux = dx / dist;   // MJD
-        double uy = dy / dist;   // MJD
-        double uz = dz / dist;   // MJD
-
-        // Move aim point 8 inches behind tag
-        double aimX = tagX - ux * OFFSET;   // MJD
-        double aimY = tagY - uy * OFFSET;   // MJD
-        double aimZ = tagZ - uz * OFFSET;   // MJD
-
-        // Vector from launcher → aim point
-        double ax = aimX - LAUNCHER_X;   // MJD
-        double ay = aimY - LAUNCHER_Y;   // MJD
-        double az = aimZ - LAUNCHER_Z;   // MJD
-
-        // Compute yaw (left/right)
-        double yawDeg = Math.toDegrees(Math.atan2(ax, ay));   // MJD
-
-        // Compute pitch (up/down)
-        double horizDist = Math.sqrt(ax*ax + ay*ay);          // MJD
-        double pitchDeg = Math.toDegrees(Math.atan2(az, horizDist));  // MJD
-
-        // Normalize yaw
-        yawDeg = ((yawDeg + 540) % 360) - 180;   // MJD
-
-        // If turret only uses yaw, return yaw
-        return yawDeg;   // MJD
     }
+    */
 
-    public double computePitchAngle() {   // MJD
+    // OLD 3D AUTO AIM — MJD
+
+    /*
+    public double computeAimAngle() {
+
+        if (limey.getTagID() == -1) return Double.NaN;
+
+        double[] tag = limey.getTagPoseRobotSpace3D();
+        if (tag == null || tag.length < 3) return Double.NaN;
+
+        double tagX = tag[0];
+        double tagY = tag[1];
+        double tagZ = tag[2];
+
+        double dx = tagX - LAUNCHER_X;
+        double dy = tagY - LAUNCHER_Y;
+        double dz = tagZ - LAUNCHER_Z;
+
+        double dist = Math.sqrt(dx*dx + dy*dy + dz*dz);
+        if (dist < 1e-6) return Double.NaN;
+
+        double ux = dx / dist;
+        double uy = dy / dist;
+        double uz = dz / dist;
+
+        double aimX = tagX - ux * OFFSET;
+        double aimY = tagY - uy * OFFSET;
+        double aimZ = tagZ - uz * OFFSET;
+
+        double ax = aimX - LAUNCHER_X;
+        double ay = aimY - LAUNCHER_Y;
+        double az = aimZ - LAUNCHER_Z;
+
+        double yawDeg = Math.toDegrees(Math.atan2(ax, ay));
+
+        yawDeg = ((yawDeg + 540) % 360) - 180;
+
+        return yawDeg;
+    }
+    */
+
+    // OLD PITCH CALC — MJD
+    /*
+
+    public double computePitchAngle() {
         if (limey.getTagID() == -1) return Double.NaN;
 
         double[] tag = limey.getTagPoseRobotSpace3D();
@@ -181,21 +211,21 @@ public class AutoAim {
         double az = aimZ - LAUNCHER_Z;
 
         double horizDist = Math.sqrt(ax*ax + ay*ay);
-        return Math.toDegrees(Math.atan2(az, horizDist));   // MJD
+        return Math.toDegrees(Math.atan2(az, horizDist));
     }
+    */
 
-    public void update() {
+    public void update() {   // MJD
 
-        if (driverOverride || turret == null) {
-            return;
-        }
+        if (driverOverride || driveTrain == null) return;   // MJD
 
-        double yaw = computeAimAngle();
-        if (Double.isNaN(yaw)) return;
+        double yaw = computeAimAngle();   // MJD
+        if (Double.isNaN(yaw)) return;    // MJD
 
+        // Convert relative yaw into absolute heading — MJD
+        int targetHeading = (int)(driveTrain.getCurrentHeading() + yaw);   // MJD
 
-       // turret.setTargetAngle(yaw);   // MJD — yaw only for now
-
+        // Rotate robot smoothly while driver keeps driving — MJD
+        driveTrain.turnToHeading(targetHeading);   // MJD
     }
-
 }

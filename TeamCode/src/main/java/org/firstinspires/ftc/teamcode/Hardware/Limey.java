@@ -7,6 +7,9 @@ import com.qualcomm.hardware.limelightvision.Limelight3A;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 
+import org.firstinspires.ftc.teamcode.Field.DecodeField;              // MJD
+import org.firstinspires.ftc.teamcode.Field.DecodeField.TagPose;      // MJD
+
 public class Limey extends BaseHardware {
 
     public Telemetry telemetry;
@@ -27,13 +30,15 @@ public class Limey extends BaseHardware {
     private double tagZCam = 0;   // MJD
 
     // camera pose in robot space (in meters)
-    // X=0, Y=0, Z=13.5 in → convert to meters
-    private static final double CAM_X_ROBOT = 0.0;                 // MJD
-    private static final double CAM_Y_ROBOT = 0.0;                 // MJD
-    private static final double CAM_Z_ROBOT = 13.5 * 0.0254;       // MJD
-    private static final double CAM_YAW_DEG = 0.0;                 // MJD
-    private static final double CAM_PITCH_DEG = 0.0;               // MJD
-    private static final double CAM_ROLL_DEG = 0.0;                // MJD
+    private static final double CAM_X_ROBOT = 0.0;
+    private static final double CAM_Y_ROBOT = 0.0;
+    private static final double CAM_Z_ROBOT = 13.5 * 0.0254;
+    private static final double CAM_YAW_DEG = 0.0;
+    private static final double CAM_PITCH_DEG = 0.0;
+    private static final double CAM_ROLL_DEG = 0.0;
+    private double robotFieldX = Double.NaN;        // MJD
+    private double robotFieldY = Double.NaN;        // MJD
+    private double robotFieldHeadingDeg = Double.NaN; // MJD
 
     @Override
     public void init() {
@@ -44,14 +49,10 @@ public class Limey extends BaseHardware {
     }
 
     @Override
-    public void init_loop() {
-
-    }
+    public void init_loop() {}
 
     @Override
-    public void start() {
-
-    }
+    public void start() {}
 
     @Override
     public void loop() {
@@ -67,6 +68,7 @@ public class Limey extends BaseHardware {
 
             Pose3D pose = tag.getTargetPoseCameraSpace();
             if (pose != null) {
+
                 double x = pose.getPosition().x;
                 double y = pose.getPosition().y;
                 double z = pose.getPosition().z;
@@ -74,7 +76,6 @@ public class Limey extends BaseHardware {
                 tagDistance = pose.getPosition().z;
                 tagAngle = pose.getOrientation().getYaw();
 
-                //store camera‑space tag position for 3D AutoAim
                 tagXCam = x;   // MJD
                 tagYCam = y;   // MJD
                 tagZCam = z;   // MJD
@@ -84,12 +85,27 @@ public class Limey extends BaseHardware {
                 telemetry.addData("Full 3D Distance", "%.2f", fullDistance);
             }
 
-            // double[] tp = getBotposeTargetSpace();  // MJD
-            // if(tp != null) {
-            //     double x = tp[0];
-            //     double y = tp[1];
-            //     double yaw = tp[5];
-            // }
+            double[] tagRobot = getTagPoseRobotSpace3D();   // MJD
+            if (tagRobot != null) {
+
+                double tagRobotX = tagRobot[0];  // MJD
+                double tagRobotY = tagRobot[1];  // MJD
+
+                TagPose tagField = DecodeField.getTagPose(tagID);  // MJD
+
+                if (tagField != null) {
+
+                    // Robot position = tagField - tagRobot
+                    robotFieldX = tagField.x - tagRobotX;  // MJD
+                    robotFieldY = tagField.y - tagRobotY;  // MJD
+
+                    // robotFieldHeadingDeg = tagField.headingDeg - tagAngle;
+                }
+            }
+
+            telemetry.addData("Robot Field X", robotFieldX);        // MJD
+            telemetry.addData("Robot Field Y", robotFieldY);        // MJD
+            telemetry.addData("Robot Field Heading", robotFieldHeadingDeg); // MJD
 
             telemetry.addData("Limelight", "VALID TARGET");
             telemetry.addData("Tag ID", tagID);
@@ -109,23 +125,17 @@ public class Limey extends BaseHardware {
 
         } else {
             tagID = -1;
+            robotFieldX = Double.NaN;        // MJD
+            robotFieldY = Double.NaN;        // MJD
+            robotFieldHeadingDeg = Double.NaN; // MJD
             telemetry.addData("Limelight", "NO TARGET");
-
-            if (result != null) {
-                telemetry.addData("Valid", result.isValid());
-                telemetry.addData("Latency", "%.1f ms", result.getTargetingLatency());
-            }
         }
     }
 
     @Override
-    void stop() {
+    void stop() {}
 
-    }
-
-    public void method(){
-
-    }
+    public void method(){}
 
     // Returns: [x, y, z, roll, pitch, yaw]
     public double[] getBotPose() {
@@ -144,61 +154,22 @@ public class Limey extends BaseHardware {
         };
     }
 
-    /*
-    public double [] getBotposeTargetSpace() {
-        if(result == null) return null;        // MJD
-        if (tagID == -1) return null;          // MJD
+    // 2D tag pose in ROBOT SPACE (yaw-only)
+    public double[] getTagPoseRobotSpace() {
+        if (result == null) return null;
+        if (!result.isValid()) return null;
+        if (result.getFiducialResults().isEmpty()) return null;
 
-        Pose3D bot = result.getBotpose();
-        if (bot == null) return null;          // MJD
+        Pose3D pose = result.getFiducialResults().get(0).getTargetPoseCameraSpace();
+        if (pose == null) return null;
 
-        double robotX = bot.getPosition().x;
-        double robotY = bot.getPosition().y;
-        double robotHeadingDeg = bot.getOrientation().getYaw();
+        double camX = pose.getPosition().x;
+        double camZ = pose.getPosition().z;
 
-        double tagX = tagXCam;
-        double tagZ = tagZCam;
-
-        double headingRad = Math.toRadians(robotHeadingDeg);
-
-        double dx = tagZ * Math.cos(headingRad) - tagX * Math.sin(headingRad);
-        double dy = tagZ * Math.cos(headingRad) - tagX * Math.sin(headingRad);
-
-        double tagFieldX = robotX + dx;
-        double tagFieldY = robotY + dy;
-
-        double relX = robotX - tagFieldX;
-        double relY = robotY - tagFieldY;
-
-        double Yaw = Math.toDegrees(Math.atan2(relY, relX));
+        double robotX = -camX;
+        double robotY = camZ;
 
         return new double[]{
-                relX,
-                relY,
-                0,
-                0, 0,
-                Yaw
-        };
-    }
-    */
-
-    //2D tag pose in ROBOT SPACE (for yaw-only) — MJD
-    public double[] getTagPoseRobotSpace() {   // MJD
-        if (result == null) return null;       // MJD
-        if (!result.isValid()) return null;    // MJD
-        if (result.getFiducialResults().isEmpty()) return null;  // MJD
-
-        Pose3D pose = result.getFiducialResults().get(0).getTargetPoseCameraSpace(); // MJD
-        if (pose == null) return null;                                             // MJD
-
-        double camX = pose.getPosition().x;   // camera +X = right   // MJD
-        double camZ = pose.getPosition().z;   // camera +Z = forward // MJD
-
-        // Robot frame: +X = left, +Y = forward
-        double robotX = -camX;                // right(+) → left(-) → negate  // MJD
-        double robotY = camZ;                 // forward is forward           // MJD
-
-        return new double[]{                  // MJD
                 robotX,
                 robotY,
                 pose.getPosition().z,
@@ -209,59 +180,47 @@ public class Limey extends BaseHardware {
     }
 
     // 3D tag pose in ROBOT SPACE (for full 3D aiming)
-    // Returns [x, y, z] in robot coordinates (meters)
-    public double[] getTagPoseRobotSpace3D() {          // MJD
-        if (result == null) return null;                // MJD
-        if (!result.isValid()) return null;             // MJD
-        if (result.getFiducialResults().isEmpty()) return null;  // MJD
+    public double[] getTagPoseRobotSpace3D() {
+        if (result == null) return null;
+        if (!result.isValid()) return null;
+        if (result.getFiducialResults().isEmpty()) return null;
 
-        Pose3D pose = result.getFiducialResults().get(0).getTargetPoseCameraSpace(); // MJD
-        if (pose == null) return null;                                              // MJD
+        Pose3D pose = result.getFiducialResults().get(0).getTargetPoseCameraSpace();
+        if (pose == null) return null;
 
-        // Camera-space position (meters) — Limelight convention:
-        // X: right, Y: down, Z: forward
-        double cx = pose.getPosition().x;   // MJD
-        double cy = pose.getPosition().y;   // MJD
-        double cz = pose.getPosition().z;   // MJD
+        double cx = pose.getPosition().x;
+        double cy = pose.getPosition().y;
+        double cz = pose.getPosition().z;
 
-        // Camera orientation relative to robot (we assume yaw=0, pitch=0, roll=0)
-        double yawRad   = Math.toRadians(CAM_YAW_DEG);   // MJD
-        double pitchRad = Math.toRadians(CAM_PITCH_DEG); // MJD
-        double rollRad  = Math.toRadians(CAM_ROLL_DEG);  // MJD
+        double rx = -cx;
+        double ry = cz;
+        double rz = CAM_Z_ROBOT - cy;
 
-        // For now, with yaw=pitch=roll=0, rotation is identity.
-        // If you later tilt/rotate the camera, apply full R = Rz(yaw)*Ry(pitch)*Rx(roll).
+        double tagRobotX = CAM_X_ROBOT + rx;
+        double tagRobotY = CAM_Y_ROBOT + ry;
+        double tagRobotZ = rz;
 
-        // Map camera-space to robot-space:
-        // Robot: +X = left, +Y = forward, +Z = up
-        // Camera: +X = right, +Y = down, +Z = forward
-        double rx = -cx;   // right(+) → left(-) → negate           // MJD
-        double ry = cz;    // forward is forward                    // MJD
-        double rz = CAM_Z_ROBOT - cy; // camera is at Z=CAM_Z, +Y down → subtract to go up // MJD
-
-        // Add camera translation in robot space (here X=0, Y=0, Z=CAM_Z_ROBOT)
-        double tagRobotX = CAM_X_ROBOT + rx;   // MJD
-        double tagRobotY = CAM_Y_ROBOT + ry;   // MJD
-        double tagRobotZ = rz;                 // MJD
-
-        return new double[]{                   // MJD
+        return new double[]{
                 tagRobotX,
                 tagRobotY,
                 tagRobotZ
         };
     }
 
-    // Getters
+    // robot pose in field space getter
+    public double[] getRobotPoseFieldSpace() {  // MJD
+        return new double[]{ robotFieldX, robotFieldY, robotFieldHeadingDeg }; // MJD
+    }
+
     public double getTx() { return tx; }
     public double getTy() { return ty; }
     public int getTagID() { return tagID; }
     public double getTagDistance() { return tagDistance; }
-    public double getTagAngle() {
 
+    public double getTagAngle() {
         if(result == null) return Double.NaN;
         if(!result.isValid()) return Double.NaN;
         if(tagID == -1) return Double.NaN;
-
         return tagAngle;
     }
 

@@ -265,11 +265,29 @@ public class DriveTrain extends BaseHardware {
     public double autoTurn(int newHeading){
        return calcTurn(newHeading);
 
-
     }
 
+// turnToHeading() — Smooth continuous turning for AutoAim — MJD
+    public void turnToHeading(int targetHeading) {   // MJD
 
+        // Compute turn power using existing PID + smoothing — MJD
+        double turnPower = calcTurn(targetHeading);   // MJD
 
+        // If turnPower is zero, we are aligned — MJD
+        if (Math.abs(turnPower) < 0.001) {   // MJD
+            return;   // MJD
+        }
+
+        // Apply pure rotation (pivot in place) — MJD
+        double leftPower = turnPower;    // MJD
+        double rightPower = -turnPower;  // MJD
+
+        // Apply rotation without touching driver translation — MJD
+        LDM1.setPower(leftPower);   // MJD
+        LDM2.setPower(leftPower);   // MJD
+        RDM1.setPower(rightPower);  // MJD
+        RDM2.setPower(rightPower);  // MJD
+    }
 
     public void visDrive(double Left_Y, double Left_X, double Right_X, double Current_Speed) {
         cmdComplete = false;

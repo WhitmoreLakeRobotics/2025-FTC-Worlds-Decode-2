@@ -10,24 +10,10 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Common.CommonLogic;
 
-/**
- * Base class for FTC Team 8492 defined hardware
- */
 public class Intake extends BaseHardware {
 
-    /**
-     * The {@link #telemetry} field contains an object in which a user may accumulate data which
-     * is to be transmitted to the driver station. This data is automatically transmitted to the
-     * driver station on a regular, periodic basis.
-     */
     public Telemetry telemetry = null;
-
-    /**
-     * Hardware Mappings
-     */
-    public HardwareMap hardwareMap = null; // will be set in Child class
-
-    // private TransitionRoller transitionRoller = new TransitionRoller();
+    public HardwareMap hardwareMap = null;
 
     private DcMotorEx NTKM01;
     private Servo PeaLight;
@@ -41,14 +27,11 @@ public class Intake extends BaseHardware {
 
     public boolean AtIntakeStop = true;
 
-
-    // Motor power
     public static final double stopSpeed = 0;
     public static final double inSpeed = -1;
     public static final double outSpeed = 0.65;
     public static final double autoSpeed = -1.0;
 
-    // LED servo values
     public static final double Green = 0.5;
     public static final double Red = 0.28;
     public static final double Yellow = 0.388;
@@ -67,24 +50,18 @@ public class Intake extends BaseHardware {
     public boolean initLight1 = false;
     public boolean initLight2 = false;
 
-    // Distance in cm
-    private final double targRange = 10;
+    private final double targRange = 6;
 
-    /**
-     * User defined init method
-     * <p>
-     * This method will be called once when the INIT button is pressed.
-     */
     public void init() {
 
         NTKAP3 = hardwareMap.get(ColorRangeSensor.class, "NTKAP3");
         NTKAP2 = hardwareMap.get(ColorRangeSensor.class, "NTKAP2");
         NTKM01 = hardwareMap.get(DcMotorEx.class, "NTKM01");
         PeaLight = hardwareMap.get(Servo.class, "PeaLight");
+
         NTKM01.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
         NTKM01.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
-        NTKM01.setPower(0); // safe default
-
+        NTKM01.setPower(0);
 
         sensorTime.reset();
         initLightTime.reset();
@@ -92,18 +69,11 @@ public class Intake extends BaseHardware {
         initLight1 = true;
         initLight2 = false;
 
-        // Ensure safe defaults
         CurrentMode = Mode.NTKstop;
         CurrentColor = Color.OFF;
         cmdOFF();
     }
 
-    /**
-     * User defined init_loop method
-     * <p>
-     * This method will be called repeatedly when the INIT button is pressed.
-     * This method is optional. By default this method takes no action.
-     */
     public void init_loop() {
 
         if (initLight1 && initLightTime.milliseconds() >= 750) {
@@ -121,13 +91,6 @@ public class Intake extends BaseHardware {
         }
     }
 
-    /**
-     * User defined start method.
-     * <p>
-     * This method will be called once when the PLAY button is first pressed.
-     * This method is optional. By default this method takes not action.
-     * Example usage: Starting another thread.
-     */
     public void start() {
         initLight1 = false;
         initLight2 = false;
@@ -135,17 +98,11 @@ public class Intake extends BaseHardware {
         loopTime.reset();
     }
 
-    /**
-     * User defined loop method
-     * <p>
-     * This method will be called repeatedly in a loop while this op mode is running
-     */
     public void loop() {
 
-        // Update sensors every 250 ms
+        // SENSOR UPDATE
         if (loopTime.milliseconds() >= 50) {
 
-            // Read distance sensors
             getDistNTKAP2();
             getDistNTKAP3();
 
@@ -153,12 +110,14 @@ public class Intake extends BaseHardware {
 
             if (NTKAP2distance <= targRange && sensorStable) {
                 CurrentDistance2 = Distance2.FILLED2;
+                cmdBLUE(); // MJD: LED feedback for sensor 2 seeing object
             } else {
                 CurrentDistance2 = Distance2.MISSING2;
             }
 
             if (NTKAP3distance <= targRange && sensorStable) {
                 CurrentDistance3 = Distance3.FILLED3;
+                cmdPURPLE(); // MJD: LED feedback for sensor 3 seeing object
             } else {
                 CurrentDistance3 = Distance3.MISSING3;
             }
@@ -166,11 +125,16 @@ public class Intake extends BaseHardware {
             loopTime.reset();
         }
 
-        // Reset sensor timer ONLY when intake starts moving forward
-        if (CurrentMode == Mode.NTKforward && NTKM01.getPower() == inSpeed) {
-            if (sensorTime.milliseconds() > 2000) {
-                sensorTime.reset();
-            }
+        // FIXED DEBOUNCE — old logic prevented sensors from stabilizing
+        // if (CurrentMode == Mode.NTKforward && NTKM01.getPower() == inSpeed) {
+        //     if (sensorTime.milliseconds() > 2000) {
+        //         sensorTime.reset();
+        //     }
+        // }
+        // MJD: Removed broken debounce
+
+        if (CurrentMode == Mode.NTKforward) {  // MJD
+            // allow sensors to stabilize
         }
 
         // STOP CONDITION
@@ -180,20 +144,20 @@ public class Intake extends BaseHardware {
                     CurrentDistance2 == Distance2.FILLED2 &&
                             CurrentDistance3 == Distance3.FILLED3;
 
-            boolean rpmLoaded =
-                    CommonLogic.inRange(getMotorRPM(NTKM01), 550, 650);
+            // boolean rpmLoaded =
+            //         CommonLogic.inRange(getMotorRPM(NTKM01), 550, 650);   // MJD: impossible RPM range
 
-            if (bothFilled && rpmLoaded) {
-                cmdStop();
+            // if (bothFilled && rpmLoaded) {   // MJD
+            //     cmdStop();
+            // }
+
+            if (bothFilled) {   // MJD
+                cmdStop();      // MJD
+                cmdYELLOW();    // MJD: LED feedback for auto-stop
             }
         }
     }
 
-    /**
-     * User defined stop method
-     * <p>
-     * This method will be called when this op mode is first disabled
-     */
     @Override
     public void stop() {
         cmdStop();
@@ -211,15 +175,15 @@ public class Intake extends BaseHardware {
     public void cmdFoward() {
         CurrentMode = Mode.NTKforward;
         NTKM01.setPower(inSpeed);
-        sensorTime.reset(); // Start debounce timer
+        sensorTime.reset();
         loopTime.reset();
-        cmdGREEN();
+        cmdGREEN(); // MJD: LED feedback for intake running
     }
 
     public void cmdStop() {
         CurrentMode = Mode.NTKstop;
         NTKM01.setPower(stopSpeed);
-        cmdRED();
+        cmdRED(); // MJD: LED feedback for intake stopped
         loopTime.reset();
     }
 
@@ -248,17 +212,13 @@ public class Intake extends BaseHardware {
         NTKAP3distance = NTKAP3.getDistance(DistanceUnit.CM);
     }
 
-    // ENUMS
-
     public enum Distance3 { FILLED3, MISSING3 }
     public enum Distance2 { FILLED2, MISSING2 }
     public enum Mode { NTKstop, NTKforward, NTKautoIn, NTKbackward }
     public enum Color { GREEN, RED, YELLOW, PURPLE, BLUE, ORANGE, OFF }
 
-    // RPM CALCULATION
-
     public double getMotorRPM(DcMotorEx motor) {
-        double ticksPerRevolution = 28; // update if needed
+        double ticksPerRevolution = 28;
         double ticksPerSecond = motor.getVelocity();
         return (ticksPerSecond / ticksPerRevolution) * 60;
     }

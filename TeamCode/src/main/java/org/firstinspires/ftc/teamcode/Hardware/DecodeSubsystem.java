@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Hardware;
 
 import org.firstinspires.ftc.teamcode.Field.DecodeField;
+import org.firstinspires.ftc.teamcode.Field.DecodeField.TagPose;
 
 public class DecodeSubsystem extends BaseHardware {
 
@@ -20,14 +21,10 @@ public class DecodeSubsystem extends BaseHardware {
     }
 
     @Override
-    public void init_loop() {
-
-    }
+    public void init_loop() {}
 
     @Override
-    public void start() {
-
-    }
+    public void start() {}
 
     public void setDependencies(Limey limey, DriveTrain driveTrain) {
         this.limey = limey;
@@ -49,9 +46,17 @@ public class DecodeSubsystem extends BaseHardware {
             return;
         }
 
-        tagFieldX = DecodeField.getTAGSx(currentTagID);
-        tagFieldY = DecodeField.getTAGSy(currentTagID);
-        tagFieldHeadingDegree = DecodeField.getTAGSHeadingdegree(currentTagID);
+        TagPose pose = DecodeField.getTagPose(currentTagID);
+
+        if (pose == null) {
+            tagFieldX = Double.NaN;
+            tagFieldY = Double.NaN;
+            tagFieldHeadingDegree = Double.NaN;
+        } else {
+            tagFieldX = pose.x;
+            tagFieldY = pose.y;
+            tagFieldHeadingDegree = pose.headingDeg;
+        }
 
         telemetry.addData("DECODE Tag ID", currentTagID);
         telemetry.addData("DECODE Tag X", tagFieldX);
@@ -61,7 +66,5 @@ public class DecodeSubsystem extends BaseHardware {
     }
 
     @Override
-    void stop() {
-
-    }
+    void stop() {}
 }
