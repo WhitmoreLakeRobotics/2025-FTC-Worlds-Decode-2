@@ -75,11 +75,19 @@ public class TrapezoidAutoAim {
             if (CurrentTurretColor == TurretColor.Red) {
                 if (limey.getTagID() == 24) {
                     if (limey.getTx() >= 72 + YawDif) { //maybe change to ty
-                        // turret.cmdRight();
-                        driveTrain.cmdTurn(Math.abs(driveTrain.getCurrentHeading() + 1),0.35);
+                        if(limey.getTx() <= 36 || limey.getTx() >= 108){
+                            driveTrain.cmdTurn(Math.abs(driveTrain.getCurrentHeading() + 4),0.35);
+                            // turret.cmdRight();
+                        }else{
+                            driveTrain.cmdTurn(Math.abs(driveTrain.getCurrentHeading() + 1), 0.35);
+                        }
                     } else if (limey.getTx() <= 72 + YawDif) {
-                        // turret.cmdLeft();
-                        driveTrain.cmdTurn(Math.abs(driveTrain.getCurrentHeading() - 1),0.35);
+                        if(limey.getTx() <= 36 || limey.getTx() >= 108){
+                            driveTrain.cmdTurn(Math.abs(driveTrain.getCurrentHeading() - 4),0.35);
+                            // turret.cmdLeft();
+                        }else{
+                            driveTrain.cmdTurn(Math.abs(driveTrain.getCurrentHeading() - 1), 0.35);
+                        }
                     } else {
                         // turret.cmdNo();
 
@@ -92,10 +100,20 @@ public class TrapezoidAutoAim {
                 if (limey.getTagID() == 20) {
                     if (limey.getTx() >= 72 + YawDif) {
                         //turret.cmdRight();
-                        driveTrain.cmdTurn(Math.abs(driveTrain.getCurrentHeading() + 1),0.35);
+                        if(limey.getTx() <= 36 || limey.getTx() >= 108){
+                            driveTrain.cmdTurn(Math.abs(driveTrain.getCurrentHeading() + 4),0.35);
+                            // turret.cmdRight();
+                        }else{
+                            driveTrain.cmdTurn(Math.abs(driveTrain.getCurrentHeading() + 1), 0.35);
+                        }
                     } else if (limey.getTx() <= 72 + YawDif) {
                         //turret.cmdLeft();
-                        driveTrain.cmdTurn(Math.abs(driveTrain.getCurrentHeading() - 1),0.35);
+                        if(limey.getTx() <= 36 || limey.getTx() >= 108){
+                            driveTrain.cmdTurn(Math.abs(driveTrain.getCurrentHeading() - 4),0.35);
+                            // turret.cmdRight();
+                        }else{
+                            driveTrain.cmdTurn(Math.abs(driveTrain.getCurrentHeading() - 1), 0.35);
+                        }
                     } else {
                         // turret.cmdNo();
                     }

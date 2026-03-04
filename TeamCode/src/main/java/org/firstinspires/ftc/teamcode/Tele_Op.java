@@ -61,6 +61,9 @@ public class Tele_Op extends OpMode {
     private boolean EndGame4b = false;
     private boolean UppiesOverrideEnabled = false;
 
+    private double FilteredHeading = 0.0;
+    private final double FILTER_ALPHA = 0.15;
+
     private ElapsedTime runtime = new ElapsedTime();
     private ElapsedTime Gameruntime = new ElapsedTime();
     private ElapsedTime EndGameTime = new ElapsedTime();
@@ -190,13 +193,17 @@ public class Tele_Op extends OpMode {
             if (!Double.isNaN(yaw)) {
 
                 // Convert yaw (robot-relative) into a heading target
-                int heading = (int)Math.round(yaw);
+                //int heading = (int)Math.round(yaw);\
+                double robotHeading = robot.driveTrain.getCurrentHeading();
+                double targetHeading = robotHeading + yaw;
+                targetHeading = ((targetHeading % 360) + 360) % 360;
 
+                FilteredHeading = FilteredHeading * (1 - FILTER_ALPHA) + targetHeading * FILTER_ALPHA;
                 // Drive with auto-turn applied
                 robot.driveTrain.cmdTeleOp(
                         CommonLogic.joyStickMath(gamepad1.left_stick_y * -1),
                         CommonLogic.joyStickMath(gamepad1.left_stick_x),
-                        robot.driveTrain.autoTurn(heading),
+                        robot.driveTrain.autoTurn((int) FilteredHeading),
                         DriveTrain.DTrain_NORMALSPEED
                 );
             }
@@ -391,10 +398,10 @@ public class Tele_Op extends OpMode {
         }
 
         if (gamepad1.right_trigger > 0.8) {
-            robot.trapezoidAutoAim.PrimitiveDriver = false;
+            //robot.trapezoidAutoAim.PrimitiveDriver = false;
 
         }else{
-            robot.trapezoidAutoAim.PrimitiveDriver = true;
+           // robot.trapezoidAutoAim.PrimitiveDriver = true;
         }
 
 

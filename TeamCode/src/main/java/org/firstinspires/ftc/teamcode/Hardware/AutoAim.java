@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode.Hardware;
 
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+
 public class AutoAim {
 
     private final Limey limey;
@@ -191,7 +193,9 @@ public class AutoAim {
         double yaw = computeAimAngle();
         if (Double.isNaN(yaw)) return;
 
-        turret.setTargetAngle(yaw);   // MJD — yaw only for now
+
+       // turret.setTargetAngle(yaw);   // MJD — yaw only for now
+
     }
 
 }
