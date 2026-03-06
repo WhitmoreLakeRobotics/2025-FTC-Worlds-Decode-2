@@ -29,6 +29,10 @@ public class ppAutonTesting extends OpMode {
     private ElapsedTime runtime = new ElapsedTime();
 
 
+    public  static  double powerSlow = 0.3;
+    public static double powerNormal = 0.65;
+    public static double powerFast = 0.8;
+
 
     public static Follower follower;
     public static Pose startPose = new Pose(10, 10, Math.toRadians(90)); // Start Pose of our robot.
@@ -55,8 +59,13 @@ public class ppAutonTesting extends OpMode {
 
                 .addPath(new BezierCurve(pickup1bPose, scorePoseAP))
                 .setLinearHeadingInterpolation(pickup1bPose.getHeading(), scorePose.getHeading())
-
                 .build();
+
+        scorePreload = follower.pathBuilder()
+                .addPath (new BezierLine(startPose, scorePose))
+                .setLinearHeadingInterpolation(startPose.getHeading(), scorePose.getHeading())
+                .build();
+
     }
 
     @Override
@@ -112,54 +121,50 @@ updateTelemetry();
                 break;
 
             case _10_preStart:
-                currentStage = stage._20_cyclePickup1;
+                currentStage = stage._20_prelaunch;
                 break;
 
-            case _20_cyclePickup1:
-                if (!follower.isBusy() || runtime.milliseconds() > 3500) {
-                     follower.followPath(cyclePickup1, true);
-                    //if we have 3 artifacts stop the path and go to next stage
-                    if (robot.intake.CurrentColor == Intake.Color.RED){
-                        follower.breakFollowing();
-                        currentStage =stage._30_RunningCornerPickup;
-                        runtime.reset();
+            case _20_prelaunch:
+                if(!follower.isBusy()){
+                    follower.followPath(scorePreload, true);
+                    robot.launcher.cmdOutfar();
+                    currentStage = stage._30_Launch2;
+            }
+             break;
 
-                    }
-                  /*  if (runtime.milliseconds() < 300 ){
-                        follower.turnToDegrees(185);
-                    }
-                    else{
-                        follower.turnToDegrees(175); //wiggle to pick up more
-                    }*/
-                    // lastPose = currentTargetPose;
-                    //currentTargetPose = pickup1cPose;
-                    currentStage = stage._25_PickupWiggle;
+
+            case _30_Launch2:
+                if (!follower.isBusy() || runtime.milliseconds() > 1000) {
+                    robot.launcherBlocker.cmdUnBlock();
+                    robot.intake.cmdFoward();
+                    robot.transitionRoller.cmdSpin();
+                    currentStage = stage._40_RunningCornerPickup;
                     runtime.reset();
                 }
                 break;
 
 
+            case _40_RunningCornerPickup:
+                if (runtime.milliseconds() > 500) {
+                    robot.launcherBlocker.cmdBlock();
+                    robot.launcher.cmdStop();
 
-
-            case _30_RunningCornerPickup:
-                if (follower.isBusy()) {
-                    if (robot.intake.CurrentColor == Intake.Color.RED){
+                if (!follower.isBusy()) {
+                    follower.followPath(cyclePickup1, true);
+                    //if we have 3 artifacts stop the path and go to next stage
+                    if (robot.intake.CurrentColor == Intake.Color.RED) {
                         follower.breakFollowing();
-                        currentStage =stage._30_RunningCornerPickup;
+                        currentStage = stage._50_Launch1;
                         runtime.reset();
-                        buildPaths();{
-                            interruptedPickup = follower.pathBuilder()
-                                    .addPath(new BezierLine(follower.getPose(), scorePose)).build();
-                        }
 
                     }
+                }
+
                     telemetryMU.addData("Corner pickup", follower.getPose());
-                }else {
-                    currentStage = stage._40_Launch1;
                 }
                     break;
 
-            case _40_Launch1:
+            case _50_Launch1:
                 if (follower.isBusy()){
 
                    robot.launcher.cmdOutfar();
@@ -196,10 +201,10 @@ stop();
 
             _00_unknown,
             _10_preStart,
-            _20_cyclePickup1,
-            _25_PickupWiggle,
-            _30_RunningCornerPickup,
-            _40_Launch1,
+            _20_prelaunch,
+            _30_Launch2,
+            _40_RunningCornerPickup,
+            _50_Launch1,
             _100_end;
 
 
@@ -244,6 +249,14 @@ stop();
 
             telemetryMU.update();
             Drawing.drawDebug(follower);
+        }
+        private  void newPath(){
+            interruptedPickup = follower.pathBuilder()
+                    .addPath (new BezierLine(follower.getPose(), scorePose))
+                    .setLinearHeadingInterpolation(startPose.getHeading(), scorePose.getHeading())
+                    .build();
+
+
         }
 
 

@@ -59,6 +59,8 @@ public class Tele_Op extends OpMode {
     private boolean EndGame3b = false;
     private boolean EndGame4b = false;
     private boolean UppiesOverrideEnabled = false;
+    private boolean VerityIsDriving = false;
+    private boolean VOverideAvail = false;
 
     private double FilteredHeading = 0.0;
     private final double FILTER_ALPHA = 0.15;
@@ -69,6 +71,7 @@ public class Tele_Op extends OpMode {
     private ElapsedTime Gameruntime2 = new ElapsedTime();
     private ElapsedTime EndGameTime2 = new ElapsedTime();
     private ElapsedTime uppiesInhibitor = new ElapsedTime();
+    private ElapsedTime VOveride = new ElapsedTime();
     private double HLIW = 500;
     public Alliance CurrentAlliance;
     //HowLongItWork
@@ -317,11 +320,16 @@ public class Tele_Op extends OpMode {
         }
          */
 
+        if(VerityIsDriving){
+            robot.driveTrain.cmdTeleOp(CommonLogic.joyStickMath(gamepad1.left_stick_y * -1), CommonLogic.joyStickMath(gamepad1.left_stick_x), robot.driveTrain.autoTurn(tHeading), robot.driveTrain.DTrain_SLOWSPEED);
+        }
+
         //***********   Gamepad 1 controls ********
         if (gamepad1.left_trigger <= 0.2) {   // MJD
             robot.autoAim.setDriverOverride(true);   // MJD
 
             if (bAutoTurn) {
+
                 if (gamepad1.right_bumper) {
                     robot.driveTrain.cmdTeleOp(CommonLogic.joyStickMath(gamepad1.left_stick_y * -1), CommonLogic.joyStickMath(gamepad1.left_stick_x), robot.driveTrain.autoTurn(tHeading), robot.driveTrain.DTrain_FASTSPEED);
                 } else if (gamepad1.left_bumper) {
@@ -375,7 +383,8 @@ public class Tele_Op extends OpMode {
             //robot.trapezoidAutoAim.PrimitiveDriver = false;
 
         } else {
-            // robot.trapezoidAutoAim.PrimitiveDriver = true;
+            //robot.trapezoidAutoAim.PrimitiveDriver = true;
+            //robot.trapezoidAutoAim.CurrentMode = TrapezoidAutoAim.Mode.NotTrying;
         }
 
         if ((gamepad1.right_trigger <= 0.79) && (gamepad1.right_trigger > 0.10)) {
@@ -469,6 +478,12 @@ public class Tele_Op extends OpMode {
         if (gamepad2.start) {
 //            robot.cmdExcecuteBumpStack();   // this was SetPOS() not setting the mode
             //          robot.lighting.UpdateBaseColor(RevBlinkinLedDriver.BlinkinPattern.AQUA);
+            VOveride.reset();
+            VOverideAvail = true;
+        }else{
+            if(VOveride.milliseconds() >= 500){
+                VOverideAvail = false;
+            }
 
         }
 
@@ -484,8 +499,16 @@ public class Tele_Op extends OpMode {
         }
 
         if (CommonLogic.oneShot(gamepad2.y, gp2_prev_y)) {
-            NoLaunch();
-            robot.autoRPM.Measure = false;
+            if(VOverideAvail) {
+                if(VerityIsDriving) {
+                    VerityIsDriving = false;
+                }else{
+                    VerityIsDriving = true;
+                }
+            }else{
+                NoLaunch();
+                robot.autoRPM.Measure = false;
+            }
         }
 
         if (CommonLogic.oneShot(gamepad2.x, gp2_prev_x)) {

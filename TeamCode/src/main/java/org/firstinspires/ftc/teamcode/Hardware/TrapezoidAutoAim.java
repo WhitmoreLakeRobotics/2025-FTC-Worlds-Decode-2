@@ -29,6 +29,7 @@ public class TrapezoidAutoAim {
     public ElapsedTime runtime = new ElapsedTime();
     public boolean PrimitiveDriver = false;
     public double YawDif = 0;
+    public boolean JackHappy = false;
     /*
     public TrapezoidAutoAim(Limey limey,DriveTrain driveTrain, Telemetry telemetry,HardwareMap hardwareMap){
         this.limey = limey;
@@ -64,6 +65,8 @@ public class TrapezoidAutoAim {
         //runtime.log("Position");
         //limey.getTx();
 
+        telemetry.addData("TrapezoidState",CurrentMode);
+
         if(limey == null) return;
         if(driveTrain == null) return;
 
@@ -74,14 +77,19 @@ public class TrapezoidAutoAim {
         if(PrimitiveDriver == false) {
             if (CurrentTurretColor == TurretColor.Red) {
                 if (limey.getTagID() == 24) {
-                    if (limey.getTx() >= 72 + YawDif) { //maybe change to ty
+                    if (limey.getTx() > 72 - YawDif) {
+                        JackHappy = false;
+                        CurrentMode = Mode.Targeting;
+                        //maybe change to ty
                         if(limey.getTx() <= 36 || limey.getTx() >= 108){
                             driveTrain.cmdTurn(Math.abs(driveTrain.getCurrentHeading() + 4),0.35);
                             // turret.cmdRight();
                         }else{
                             driveTrain.cmdTurn(Math.abs(driveTrain.getCurrentHeading() + 1), 0.35);
                         }
-                    } else if (limey.getTx() <= 72 + YawDif) {
+                    } else if (limey.getTx() < 72 - YawDif) {
+                        JackHappy = false;
+                        CurrentMode = Mode.Targeting;
                         if(limey.getTx() <= 36 || limey.getTx() >= 108){
                             driveTrain.cmdTurn(Math.abs(driveTrain.getCurrentHeading() - 4),0.35);
                             // turret.cmdLeft();
@@ -90,15 +98,25 @@ public class TrapezoidAutoAim {
                         }
                     } else {
                         // turret.cmdNo();
+                        if(limey.getTx() == 72 -YawDif) {
+                            JackHappy = true;
+                            CurrentMode = Mode.Target_Acquired;
+                        }
 
                     }
                 } else {
-                    // turret.cmdNo();
+                    // turret.cmdNo();   >:3
+                    CurrentMode = Mode.Target_NotFound;
+
+
+
                 }
             }
             if (CurrentTurretColor == TurretColor.Blue) {
                 if (limey.getTagID() == 20) {
-                    if (limey.getTx() >= 72 + YawDif) {
+                    if (limey.getTx() > 72 - YawDif) {
+                        JackHappy = false;
+                        CurrentMode = Mode.Targeting;
                         //turret.cmdRight();
                         if(limey.getTx() <= 36 || limey.getTx() >= 108){
                             driveTrain.cmdTurn(Math.abs(driveTrain.getCurrentHeading() + 4),0.35);
@@ -106,7 +124,9 @@ public class TrapezoidAutoAim {
                         }else{
                             driveTrain.cmdTurn(Math.abs(driveTrain.getCurrentHeading() + 1), 0.35);
                         }
-                    } else if (limey.getTx() <= 72 + YawDif) {
+                    } else if (limey.getTx() < 72 - YawDif) {
+                        JackHappy = false;
+                        CurrentMode = Mode.Targeting;
                         //turret.cmdLeft();
                         if(limey.getTx() <= 36 || limey.getTx() >= 108){
                             driveTrain.cmdTurn(Math.abs(driveTrain.getCurrentHeading() - 4),0.35);
@@ -116,9 +136,15 @@ public class TrapezoidAutoAim {
                         }
                     } else {
                         // turret.cmdNo();
+                        if(limey.getTx() == 72 - YawDif){
+                            JackHappy = true;
+                            CurrentMode = Mode.Target_Acquired;
+                        }
+
                     }
                 } else {
                     // turret.cmdNo();
+                    CurrentMode = Mode.Target_NotFound;
                 }
             }
         }

@@ -79,6 +79,7 @@ public class ppTeleop extends OpMode {
     //private boolean EndGame4b = false;
     private boolean UppiesOverrideEnabled = false;
 
+
     private ElapsedTime runtime = new ElapsedTime();
     //private ElapsedTime Gameruntime = new ElapsedTime();
     //private ElapsedTime EndGameTime = new ElapsedTime();
@@ -322,7 +323,6 @@ public class ppTeleop extends OpMode {
 
         }
         if (gamepad2.start) {
-
 
         }
 

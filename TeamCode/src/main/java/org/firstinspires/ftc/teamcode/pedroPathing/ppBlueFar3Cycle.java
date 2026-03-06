@@ -263,6 +263,8 @@ public class ppBlueFar3Cycle extends OpMode {
                     robot.launcher.cmdOutfar();
                     currentStage = stage._25_checkDrivetoscore;
                 }
+                break;
+
             case _25_checkDrivetoscore:
                 if (!follower.isBusy()) {
                     telemetryMU.addData("Drive Complete?", follower.isBusy());
@@ -274,7 +276,7 @@ public class ppBlueFar3Cycle extends OpMode {
             case _30_Shoot1:
                 if (!follower.isBusy()) {
                     if (runtime.milliseconds() >= 500) {
-                        telemetryMU.addLine("wqiting to shoot 1");
+                        telemetryMU.addLine("waiting to shoot 1");
                         // if (CommonLogic.inRange(follower.getPose().getX(), wallScoreX, xTol) &&
                         //         CommonLogic.inRange(follower.getPose().getY(), wallScoreY, yTol)) {
                         robot.intake.cmdFoward();
