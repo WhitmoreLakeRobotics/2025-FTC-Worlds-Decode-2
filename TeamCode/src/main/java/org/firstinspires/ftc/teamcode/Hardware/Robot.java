@@ -4,6 +4,7 @@ import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +35,8 @@ public class Robot extends BaseHardware {
     private boolean slowMode = false;
     private double slowModeMultiplier = 0.5;
     public boolean bCkSenors = false;
+    private ElapsedTime runtime = new ElapsedTime();
+
 
     //auto align constants
 
@@ -159,7 +162,10 @@ public class Robot extends BaseHardware {
 
         if (transitionRoller.CurrentMode == TransitionRoller.Mode.Stop
                 && intake.CurrentMode == Intake.Mode.NTKforward) {
-            intake.cmdBLUE();
+            runtime.reset();
+            if(runtime.milliseconds() >= 500) {
+                intake.cmdBLUE();
+            }
         }
 
         autoAim.update();

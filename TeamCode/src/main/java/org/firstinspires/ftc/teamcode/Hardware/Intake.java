@@ -106,7 +106,7 @@ public class Intake extends BaseHardware {
             getDistNTKAP2();
             getDistNTKAP3();
 
-            boolean sensorStable = sensorTime.milliseconds() >= 250;
+            boolean sensorStable = sensorTime.milliseconds() >= 1000;
 
             if (NTKAP2distance <= targRange && sensorStable) {
                 CurrentDistance2 = Distance2.FILLED2;
