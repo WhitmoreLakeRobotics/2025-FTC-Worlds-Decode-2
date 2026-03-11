@@ -20,7 +20,7 @@ public class Tele_Op extends OpMode {
     private static final String TAGTeleop = "8492-Teleop";
     //RobotTest robot = new RobotTest();
     Robot robot = new Robot();
-    //    // Declare OpMode members.
+    // Declare OpMode members.
     private boolean gp1_prev_a = false;
     private boolean gp1_prev_b = false;
     private boolean gp1_prev_x = false;
@@ -78,7 +78,6 @@ public class Tele_Op extends OpMode {
 
     private AutoRPM visionController;
 
-    //*********************************************************************************************
     //Code to run ONCE when the driver hits INIT
 
     @Override
@@ -127,7 +126,6 @@ public class Tele_Op extends OpMode {
 
     }
 
-    //*********************************************************************************************
     //Code to run REPEATEDLY after the driver hits INIT, but before they hit PLAY
 
     @Override
@@ -135,7 +133,6 @@ public class Tele_Op extends OpMode {
         robot.init_loop();
     }
 
-    //*********************************************************************************************
     //Code to run ONCE when the driver hits PLAY
 
     @Override
@@ -156,16 +153,13 @@ public class Tele_Op extends OpMode {
 
         }
 
-        // robot.lighting.UpdateBaseColor(RevBlinkinLedDriver.BlinkinPattern.GOLD);
-        //robot.signalSign.doUP();
-        //robot.swing_arm_and_lift.SetPOS(Swing_Arm_And_Lift.Mode.PICKUP);
     }
 
-    //*********************************************************************************************
     // Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP
 
     @Override
-    public void loop() {
+    public void
+    loop() {
         robot.loop();
 
         write2Log();
@@ -180,34 +174,21 @@ public class Tele_Op extends OpMode {
 
         // AUTO AIM — chassis turning  // MJD
         if (gamepad1.left_trigger > 0.2) {   // MJD
-
-            // AutoAim takes over rotation only // MJD
-            robot.autoAim.setDriverOverride(false);   // MJD
-
-            // Compute yaw (robot-relative) // MJD
-            double yaw = robot.autoAim.computeAimAngle();   // MJD
-
-            if (!Double.isNaN(yaw)) {   // MJD
-
-                // Convert yaw → absolute heading // MJD
-                double robotHeading = robot.driveTrain.getCurrentHeading();   // MJD
-                double targetHeading = robotHeading + yaw;   // MJD
-
-                // Normalize // MJD
-                targetHeading = ((targetHeading % 360) + 360) % 360;   // MJD
-
-                // Smooth heading // MJD
-                FilteredHeading = FilteredHeading * (1 - FILTER_ALPHA) + targetHeading * FILTER_ALPHA;   // MJD
-
-                // Let AutoAim inject rotation // MJD
-                robot.driveTrain.turnToHeading((int) FilteredHeading);   // MJD
-
-                // Driver still drives/straffes normally // MJD
-                robot.driveTrain.cmdTeleOp(CommonLogic.joyStickMath(-gamepad1.left_stick_y), CommonLogic.joyStickMath(gamepad1.left_stick_x), 0,   // rotation handled by AutoAim // MJD
-                        DriveTrain.DTrain_NORMALSPEED);   // MJD
-            }
-
+            robot.autoAim.setDriverOverride(false);   // enable auto aim // MJD
+        } else {
+            robot.autoAim.setDriverOverride(true);    // disable auto aim
         }
+
+        // Let AutoAim handle rotation // MJD
+        robot.autoAim.update();   // MJD
+
+        // Driver still drives normally (rotation = 0 because AutoAim controls it)
+        robot.driveTrain.cmdTeleOp(
+                CommonLogic.joyStickMath(-gamepad1.left_stick_y),
+                CommonLogic.joyStickMath(gamepad1.left_stick_x),
+                0,   // rotation handled by AutoAim
+                DriveTrain.DTrain_NORMALSPEED
+        );
 
         double turretStick = gamepad2.right_stick_x;
         /*
@@ -320,7 +301,7 @@ public class Tele_Op extends OpMode {
         }
          */
 
-        if(VerityIsDriving){
+        if (VerityIsDriving) {
             robot.driveTrain.cmdTeleOp(CommonLogic.joyStickMath(gamepad1.left_stick_y * -1), CommonLogic.joyStickMath(gamepad1.left_stick_x), robot.driveTrain.autoTurn(tHeading), robot.driveTrain.DTrain_SLOWSPEED);
         }
 
@@ -480,8 +461,8 @@ public class Tele_Op extends OpMode {
             //          robot.lighting.UpdateBaseColor(RevBlinkinLedDriver.BlinkinPattern.AQUA);
             VOveride.reset();
             VOverideAvail = true;
-        }else{
-            if(VOveride.milliseconds() >= 500){
+        } else {
+            if (VOveride.milliseconds() >= 500) {
                 VOverideAvail = false;
             }
 
@@ -499,13 +480,13 @@ public class Tele_Op extends OpMode {
         }
 
         if (CommonLogic.oneShot(gamepad2.y, gp2_prev_y)) {
-            if(VOverideAvail) {
-                if(VerityIsDriving) {
+            if (VOverideAvail) {
+                if (VerityIsDriving) {
                     VerityIsDriving = false;
-                }else{
+                } else {
                     VerityIsDriving = true;
                 }
-            }else{
+            } else {
                 NoLaunch();
                 robot.autoRPM.Measure = false;
             }

@@ -45,7 +45,7 @@ public class AutoAim {
 
         double robotX = robot[0];   // MJD
         double robotY = robot[1];   // MJD
-        double robotHeading = driveTrain.getCurrentHeading();  // MJD
+        double robotHeading = robot[2];   // MJD
 
         //  Tag pose from field map — MJD
         TagPose tag = DecodeField.getTagPose(limey.getTagID());   // MJD
@@ -222,10 +222,15 @@ public class AutoAim {
         double yaw = computeAimAngle();   // MJD
         if (Double.isNaN(yaw)) return;    // MJD
 
-        // Convert relative yaw into absolute heading — MJD
-        int targetHeading = (int)(driveTrain.getCurrentHeading() + yaw);   // MJD
+        // Use drivetrain IMU heading to compute absolute target — MJD
+        double robotHeading = driveTrain.getCurrentHeading();   // MJD
+
+        double targetHeading = robotHeading + yaw;   // MJD
+
+        // Normalize to [0,360) — MJD
+        targetHeading = ((targetHeading % 360) + 360) % 360;   // MJD
 
         // Rotate robot smoothly while driver keeps driving — MJD
-        driveTrain.turnToHeading(targetHeading);   // MJD
+        driveTrain.turnToHeading((int) targetHeading);   // MJD
     }
 }

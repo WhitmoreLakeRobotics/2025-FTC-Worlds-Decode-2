@@ -7,8 +7,8 @@ import com.qualcomm.hardware.limelightvision.Limelight3A;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 
-import org.firstinspires.ftc.teamcode.Field.DecodeField;              // MJD
-import org.firstinspires.ftc.teamcode.Field.DecodeField.TagPose;      // MJD
+import org.firstinspires.ftc.teamcode.Field.DecodeField;
+import org.firstinspires.ftc.teamcode.Field.DecodeField.TagPose;
 
 public class Limey extends BaseHardware {
 
@@ -36,6 +36,7 @@ public class Limey extends BaseHardware {
     private static final double CAM_YAW_DEG = 0.0;
     private static final double CAM_PITCH_DEG = 0.0;
     private static final double CAM_ROLL_DEG = 0.0;
+
     private double robotFieldX = Double.NaN;        // MJD
     private double robotFieldY = Double.NaN;        // MJD
     private double robotFieldHeadingDeg = Double.NaN; // MJD
@@ -99,7 +100,8 @@ public class Limey extends BaseHardware {
                     robotFieldX = tagField.x - tagRobotX;  // MJD
                     robotFieldY = tagField.y - tagRobotY;  // MJD
 
-                    // robotFieldHeadingDeg = tagField.headingDeg - tagAngle;
+                    robotFieldHeadingDeg = tagField.headingDeg - tagAngle;   // MJD
+                    robotFieldHeadingDeg = ((robotFieldHeadingDeg % 360) + 360) % 360; // MJD
                 }
             }
 
@@ -179,7 +181,7 @@ public class Limey extends BaseHardware {
         };
     }
 
-    // 3D tag pose in ROBOT SPACE (for full 3D aiming)
+    // 3D tag pose in ROBOT SPACE
     public double[] getTagPoseRobotSpace3D() {
         if (result == null) return null;
         if (!result.isValid()) return null;
