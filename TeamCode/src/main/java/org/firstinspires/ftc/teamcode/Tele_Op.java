@@ -114,12 +114,15 @@ public class Tele_Op extends OpMode {
         // Most robots need the motor on one side to be reversed to drive forward
         // Reverse the motor that runs backwards when connected directly to the battery
 
-        if (TestAuton.Alliance == "Red") {
+        if ("Red".equals(TestAuton.Alliance)) {
             CurrentAlliance = Alliance.Red;
-        } else if (TestAuton.Alliance == "Blue") {
+
+        } else if ("Blue".equals(TestAuton.Alliance)) {
             CurrentAlliance = Alliance.Blue;
-        } else if (TestAuton.Alliance == "Unknown") {
+
+        } else if ("Unknown".equals(TestAuton.Alliance)) {
             CurrentAlliance = Alliance.Unknown;
+
         } else {
             CurrentAlliance = Alliance.NoAuto;
         }
@@ -172,22 +175,45 @@ public class Tele_Op extends OpMode {
             bAutoTurn = true;
         }
 
-        // AUTO AIM — chassis turning  // MJD
         if (gamepad1.left_trigger > 0.2) {   // MJD
-            robot.autoAim.setDriverOverride(false);   // enable auto aim // MJD
-        } else {
-            robot.autoAim.setDriverOverride(true);    // disable auto aim
+            robot.autoAim.setDriverOverride(false);   // MJD
+            robot.autoAim.update();                   // MJD
+
+            robot.driveTrain.cmdTeleOp(
+                    CommonLogic.joyStickMath(-gamepad1.left_stick_y),
+                    CommonLogic.joyStickMath(gamepad1.left_stick_x),
+                    0,   // rotation handled by AutoAim // MJD
+                    DriveTrain.DTrain_NORMALSPEED
+            );
+
+            return;
         }
 
-        // Let AutoAim handle rotation // MJD
-        robot.autoAim.update();   // MJD
+        robot.autoAim.setDriverOverride(true);
 
-        // Driver still drives normally (rotation = 0 because AutoAim controls it)
+        double rotation;   // MJD
+
+        if (bAutoTurn) {   // MJD
+            rotation = robot.driveTrain.autoTurn(tHeading);   // MJD
+        } else {
+            rotation = CommonLogic.joyStickMath(gamepad1.right_stick_x);   // MJD
+        }
+
+        double speed;   // MJD
+        if (gamepad1.right_bumper) {
+            speed = DriveTrain.DTrain_FASTSPEED;
+        } else if (gamepad1.left_bumper) {
+            speed = DriveTrain.DTrain_SLOWSPEED;
+        } else {
+            speed = DriveTrain.DTrain_NORMALSPEED;
+        }
+
+        // FINAL DRIVE COMMAND — MJD
         robot.driveTrain.cmdTeleOp(
                 CommonLogic.joyStickMath(-gamepad1.left_stick_y),
                 CommonLogic.joyStickMath(gamepad1.left_stick_x),
-                0,   // rotation handled by AutoAim
-                DriveTrain.DTrain_NORMALSPEED
+                rotation,   // MJD
+                speed       // MJD
         );
 
         double turretStick = gamepad2.right_stick_x;

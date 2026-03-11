@@ -33,7 +33,7 @@ public class AutoAim {
         this.driverOverride = override;
     }
 
-    // FIELD-BASED AUTO AIM — MJD
+    // FIELD-BASED AUTO AIM
     public double computeAimAngle() {   // MJD
 
         // Must see a tag
@@ -47,26 +47,37 @@ public class AutoAim {
         double robotY = robot[1];   // MJD
         double robotHeading = robot[2];   // MJD
 
-        //  Tag pose from field map — MJD
+        //  Tag pose from field map
         TagPose tag = DecodeField.getTagPose(limey.getTagID());   // MJD
         if (tag == null) return Double.NaN;   // MJD
 
         double tagX = tag.x;   // MJD
         double tagY = tag.y;   // MJD
 
-        //  Angle from robot → tag in field space — MJD
+        //  Angle from robot → tag in field space
         double angleToTag = Math.toDegrees(Math.atan2(tagY - robotY, tagX - robotX));   // MJD
 
-        //  Convert field angle → robot-relative heading — MJD
+        //  Convert field angle → robot-relative heading
         double desiredHeading = angleToTag - robotHeading;   // MJD
 
-        // Normalize to [-180,180] — MJD
+        // Normalize to [-180,180]
         desiredHeading = ((desiredHeading + 540) % 360) - 180;   // MJD
+
+        // TELEMETRY — AUTO AIM DEBUG —
+        if (limey.telemetry != null) {   // MJD
+            limey.telemetry.addData("AA RobotX", robotX);
+            limey.telemetry.addData("AA RobotY", robotY);
+            limey.telemetry.addData("AA RobotHeading", robotHeading);
+            limey.telemetry.addData("AA TagX", tagX);
+            limey.telemetry.addData("AA TagY", tagY);
+            limey.telemetry.addData("AA AngleToTag", angleToTag);
+            limey.telemetry.addData("AA YawError", desiredHeading);
+        }
 
         return desiredHeading;   // MJD
     }
 
-    // OLD CAMERA-ANGLE AUTO AIM — MJD
+    // OLD CAMERA-ANGLE AUTO AIM
 
     /*
     public double computeAimAngle() {
@@ -105,7 +116,7 @@ public class AutoAim {
     }
     */
 
-    // OLD BOTPOSE TARGET SPACE AUTO AIM — MJD
+    // OLD BOTPOSE TARGET SPACE AUTO AIM
 
     /*
     public double computeAimAngle() {
@@ -137,7 +148,7 @@ public class AutoAim {
     }
     */
 
-    // OLD 3D AUTO AIM — MJD
+    // OLD 3D AUTO AIM
 
     /*
     public double computeAimAngle() {
@@ -178,7 +189,7 @@ public class AutoAim {
     }
     */
 
-    // OLD PITCH CALC — MJD
+    // OLD PITCH CALC
     /*
 
     public double computePitchAngle() {
@@ -219,18 +230,24 @@ public class AutoAim {
 
         if (driverOverride || driveTrain == null) return;   // MJD
 
-        double yaw = computeAimAngle();   // MJD
-        if (Double.isNaN(yaw)) return;    // MJD
+        double yaw = computeAimAngle();
+        if (Double.isNaN(yaw)) return;
 
-        // Use drivetrain IMU heading to compute absolute target — MJD
-        double robotHeading = driveTrain.getCurrentHeading();   // MJD
+        double robotHeading = driveTrain.getCurrentHeading();
 
-        double targetHeading = robotHeading + yaw;   // MJD
+        double targetHeading = robotHeading + yaw;
 
-        // Normalize to [0,360) — MJD
-        targetHeading = ((targetHeading % 360) + 360) % 360;   // MJD
+        targetHeading = ((targetHeading % 360) + 360) % 360;
 
-        // Rotate robot smoothly while driver keeps driving — MJD
-        driveTrain.turnToHeading((int) targetHeading);   // MJD
+        // driveTrain.turnToHeading((int) targetHeading);
+
+        double turnPower = driveTrain.autoTurn((int) targetHeading);   // MJD
+
+        driveTrain.cmdTeleOp(
+                0,
+                0,
+                turnPower,
+                DriveTrain.DTrain_NORMALSPEED
+        );
     }
 }

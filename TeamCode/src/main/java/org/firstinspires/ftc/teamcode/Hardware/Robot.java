@@ -168,8 +168,6 @@ public class Robot extends BaseHardware {
             }
         }
 
-        autoAim.update();
-
     }
 
     public void autonLoop() {
