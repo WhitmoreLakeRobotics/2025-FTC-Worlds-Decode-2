@@ -127,17 +127,18 @@ updateTelemetry();
             case _20_prelaunch:
                 if(!follower.isBusy()){
                     follower.followPath(scorePreload, true);
-                    robot.launcher.cmdOutfar();
+                  //  robot.launcher.cmdOutfar();
+                    robot.autoRPM.Measure = true;
+                    runtime.reset();
                     currentStage = stage._30_Launch2;
+
             }
              break;
 
 
             case _30_Launch2:
                 if (!follower.isBusy() || runtime.milliseconds() > 1000) {
-                    robot.launcherBlocker.cmdUnBlock();
-                    robot.intake.cmdFoward();
-                    robot.transitionRoller.cmdSpin();
+                    dolaunch_process();
                     currentStage = stage._40_RunningCornerPickup;
                     runtime.reset();
                 }
@@ -147,40 +148,45 @@ updateTelemetry();
             case _40_RunningCornerPickup:
                 if (runtime.milliseconds() > 500) {
                     robot.launcherBlocker.cmdBlock();
+                    robot.autoRPM.Measure = false;
                     robot.launcher.cmdStop();
+
 
                 if (!follower.isBusy()) {
                     follower.followPath(cyclePickup1, true);
                     //if we have 3 artifacts stop the path and go to next stage
-                    if (robot.intake.CurrentColor == Intake.Color.RED) {
-                        follower.breakFollowing();
-                        currentStage = stage._50_Launch1;
-                        runtime.reset();
-
-                    }
+                    runtime.reset();
+                    currentStage = stage._46_RunningCheck;
                 }
 
                     telemetryMU.addData("Corner pickup", follower.getPose());
                 }
                     break;
 
-            case _50_Launch1:
-                if (follower.isBusy()){
-
-                   robot.launcher.cmdOutfar();
-                    robot.intake.cmdFoward();
-                    robot.transitionRoller.cmdSpin();
-                    robot.launcherBlocker.cmdUnBlock(); //ask if method works
+            case _46_RunningCheck:
+                if (robot.intake.CurrentColor == Intake.Color.RED || !follower.isBusy()) {
+                    follower.breakFollowing();
+                    newPath();
+                    currentStage = stage._50_Launch1;
                     runtime.reset();
 
                 }
-                currentStage = stage._100_end;
+
+
+            case _50_Launch1:
+                if (!follower.isBusy()){
+
+                  robot.autoRPM.Measure = true;
+                 dolaunch_process();
+                      runtime.reset();
+                    currentStage = stage._100_end;
+                }
+
 
             case _100_end:
                 if (!follower.isBusy()) {
                     telemetryMU.addData("Drive Complete?", follower.isBusy());
 stop();
-                    runtime.reset();
                 }
                 break;
 
@@ -204,19 +210,18 @@ stop();
             _20_prelaunch,
             _30_Launch2,
             _40_RunningCornerPickup,
+            _46_RunningCheck,
             _50_Launch1,
             _100_end;
 
 
         }
 
-        private void launch_process(){
+        private void dolaunch_process(){
 
-
-        robot.launcher.cmdOutfar();
-        robot.intake.cmdFoward();
+            robot.launcherBlocker.cmdUnBlock();
         robot.transitionRoller.cmdSpin();
-        robot.launcherBlocker.cmdUnBlock();
+            robot.intake.cmdFoward();
         runtime.reset();
 
 
@@ -255,7 +260,7 @@ stop();
                     .addPath (new BezierLine(follower.getPose(), scorePose))
                     .setLinearHeadingInterpolation(startPose.getHeading(), scorePose.getHeading())
                     .build();
-
+                    follower.followPath(interruptedPickup,true);
 
         }
 
