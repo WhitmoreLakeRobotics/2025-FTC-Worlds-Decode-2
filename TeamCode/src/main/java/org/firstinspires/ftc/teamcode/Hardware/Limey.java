@@ -125,6 +125,9 @@ public class Limey extends BaseHardware {
             telemetry.addData("Yaw", "%.2f°", tagAngle);
             telemetry.addData("Latency", "%.1f ms", result.getTargetingLatency());
 
+           // telemetry.addData("HeadingTRAP",TrapezoidAutoAim.heading);
+            //telemetry.addData("TrapezoidState",TrapezoidAutoAim.CurrentMode);
+
         } else {
             tagID = -1;
 

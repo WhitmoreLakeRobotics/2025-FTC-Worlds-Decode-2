@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Field.DecodeField;
 import org.firstinspires.ftc.teamcode.Field.DecodeField.TagPose;
-
+@Disabled
 public class AutoAim {
 
     private final Limey limey;
@@ -228,26 +228,26 @@ public class AutoAim {
 
     public void update() {   // MJD
 
-        if (driverOverride || driveTrain == null) return;   // MJD
+            if (driverOverride || driveTrain == null) return;   // MJD
 
-        double yaw = computeAimAngle();
-        if (Double.isNaN(yaw)) return;
+            double yaw = computeAimAngle();
+            if (Double.isNaN(yaw)) return;
 
-        double robotHeading = driveTrain.getCurrentHeading();
+            double robotHeading = driveTrain.getCurrentHeading();
 
-        double targetHeading = robotHeading + yaw;
+            double targetHeading = robotHeading + yaw;
 
-        targetHeading = ((targetHeading % 360) + 360) % 360;
+            targetHeading = ((targetHeading % 360) + 360) % 360;
 
-        // driveTrain.turnToHeading((int) targetHeading);
+            // driveTrain.turnToHeading((int) targetHeading);
 
-        double turnPower = driveTrain.autoTurn((int) targetHeading);   // MJD
+            double turnPower = driveTrain.autoTurn((int) targetHeading);   // MJD
 
-        driveTrain.cmdTeleOp(
-                0,
-                0,
-                turnPower,
-                DriveTrain.DTrain_NORMALSPEED
-        );
+            driveTrain.cmdTeleOp(
+                    0,
+                    0,
+                    turnPower,
+                    DriveTrain.DTrain_NORMALSPEED
+            );
     }
 }

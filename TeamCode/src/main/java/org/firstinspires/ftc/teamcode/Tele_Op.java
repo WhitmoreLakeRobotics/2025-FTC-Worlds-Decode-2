@@ -114,13 +114,13 @@ public class Tele_Op extends OpMode {
         // Most robots need the motor on one side to be reversed to drive forward
         // Reverse the motor that runs backwards when connected directly to the battery
 
-        if ("Red".equals(TestAuton.Alliance)) {
+        if (TestAuton.Alliance == "Red") {
             CurrentAlliance = Alliance.Red;
 
-        } else if ("Blue".equals(TestAuton.Alliance)) {
+        } else if (TestAuton.Alliance == "Blue") {
             CurrentAlliance = Alliance.Blue;
 
-        } else if ("Unknown".equals(TestAuton.Alliance)) {
+        } else if (TestAuton.Alliance == "Unknown") {
             CurrentAlliance = Alliance.Unknown;
 
         } else {
@@ -387,11 +387,11 @@ public class Tele_Op extends OpMode {
         }
 
         if (gamepad1.right_trigger > 0.8) {
-            //robot.trapezoidAutoAim.PrimitiveDriver = false;
+            robot.trapezoidAutoAim.PrimitiveDriver = false;
 
         } else {
-            //robot.trapezoidAutoAim.PrimitiveDriver = true;
-            //robot.trapezoidAutoAim.CurrentMode = TrapezoidAutoAim.Mode.NotTrying;
+            robot.trapezoidAutoAim.PrimitiveDriver = true;
+            robot.trapezoidAutoAim.CurrentMode = TrapezoidAutoAim.Mode.NotTrying;
         }
 
         if ((gamepad1.right_trigger <= 0.79) && (gamepad1.right_trigger > 0.10)) {
@@ -549,7 +549,7 @@ public class Tele_Op extends OpMode {
         }
 
         if (CommonLogic.oneShot(gamepad2.dpad_up, gp2_prev_dpad_up)) {
-            LaunchLaser();
+           // LaunchLaser();
         }
 
         if (CommonLogic.oneShot(gamepad2.dpad_down, gp2_prev_dpad_down)) {

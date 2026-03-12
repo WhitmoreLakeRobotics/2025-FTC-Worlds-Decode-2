@@ -35,7 +35,7 @@ public class Robot extends BaseHardware {
     private boolean slowMode = false;
     private double slowModeMultiplier = 0.5;
     public boolean bCkSenors = false;
-    private ElapsedTime runtime = new ElapsedTime();
+
 
 
     //auto align constants
@@ -162,10 +162,7 @@ public class Robot extends BaseHardware {
 
         if (transitionRoller.CurrentMode == TransitionRoller.Mode.Stop
                 && intake.CurrentMode == Intake.Mode.NTKforward) {
-            runtime.reset();
-            if(runtime.milliseconds() >= 500) {
                 intake.cmdBLUE();
-            }
         }
 
     }
