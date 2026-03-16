@@ -53,7 +53,7 @@ public class DriveTrain extends BaseHardware {
 
     private static final String TAGChassis = "8492 ";
 
-    public static final double DTrain_NORMALSPEED = 65; //was 65 z=1.00;
+    public static final double DTrain_NORMALSPEED = 0.45; //was 65 z=1.00;
     public static final double DTrain_SLOWSPEED = 0.35; // was 30;
     public static final double DTrain_FASTSPEED = 1.00; //was 85;
     private double SensorDrive = 0.35;
@@ -263,28 +263,6 @@ public class DriveTrain extends BaseHardware {
     public double autoTurn(int newHeading) {
         return calcTurn(newHeading);
 
-    }
-
-    // turnToHeading() — Smooth continuous turning for AutoAim — MJD
-    public void turnToHeading(int targetHeading) {   // MJD
-
-        // Compute turn power using existing PID + smoothing — MJD
-        double turnPower = calcTurn(targetHeading);   // MJD
-
-        // If turnPower is zero, we are aligned — MJD
-        if (Math.abs(turnPower) < 0.001) {   // MJD
-            return;   // MJD
-        }
-
-        // Apply pure rotation (pivot in place) — MJD
-        double leftPower = turnPower;    // MJD
-        double rightPower = -turnPower;  // MJD
-
-        // Apply rotation without touching driver translation — MJD
-        LDM1.setPower(leftPower);   // MJD
-        LDM2.setPower(leftPower);   // MJD
-        RDM1.setPower(rightPower);  // MJD
-        RDM2.setPower(rightPower);  // MJD
     }
 
     public void visDrive(double Left_Y, double Left_X, double Right_X, double Current_Speed) {

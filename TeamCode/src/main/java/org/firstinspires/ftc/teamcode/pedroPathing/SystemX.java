@@ -11,14 +11,18 @@ import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Hardware.Intake;
 import org.firstinspires.ftc.teamcode.Hardware.Robot;
+import org.firstinspires.ftc.teamcode.Hardware.TrapezoidAutoAim;
+import org.firstinspires.ftc.teamcode.Tele_Op;
 
-@Autonomous(name = "ppAutonTesting", group = "PP")
-public class ppAutonTesting extends OpMode {
+@Disabled
+@Autonomous(name = "TheInnocentSystemThatDoesAbsolutelyNothing", group = "PP")
+public class SystemX extends OpMode {
 
     Robot robot = new Robot();
 
@@ -27,6 +31,8 @@ public class ppAutonTesting extends OpMode {
     private TelemetryManager telemetryMU;
     private stage currentStage = stage._00_unknown;
     private ElapsedTime runtime = new ElapsedTime();
+    private boolean Auton = true;
+    public boolean intakeFull = false;
 
 
     public  static  double powerSlow = 0.3;
@@ -36,9 +42,10 @@ public class ppAutonTesting extends OpMode {
 
     public static Follower follower;
     public Pose currentPose = new Pose(follower.getPose().getX(), follower.getPose().getY(), Math.toRadians(follower.getPose().getHeading()));
-
     public static Pose startPose = new Pose(10, 10, Math.toRadians(90)); // Start Pose of our robot.
     public static Pose scorePose = new Pose(15, 15, Math.toRadians(114)); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
+    public static Pose scorePose2 = new Pose(72, 96, Math.toRadians(10));
+
     //private final Pose scorePose = new Pose(wallScoreX, wallScoreY, wallScoreH); // seeing if configurables work for this. Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
     public static Pose scorePoseAP = new Pose(20, 20, Math.toRadians(10));
     public static Pose pickup1aPose = new Pose(25, 25, Math.toRadians(180)); // Highest (First Set) of Artifacts from the Spike Mark.
@@ -48,7 +55,7 @@ public class ppAutonTesting extends OpMode {
 
     private PathChain scorePreload;
     private PathChain grabPickup1, grabPickup1a, grabPickup1b, grabPickup1c, scorePickup1, grabPickup2a, grabPickup2b, scorePickup2, goEndPose, goEndPose2, endPath;
-    private PathChain cyclePickup1, interruptedPickup;
+    private PathChain cyclePickup1, interruptedPickup,scorePreload2;
 
 
     public void buildPaths() {
@@ -64,14 +71,29 @@ public class ppAutonTesting extends OpMode {
                 .build();
 
         scorePreload = follower.pathBuilder()
-                .addPath (new BezierLine(startPose, scorePose))
-                .setLinearHeadingInterpolation(startPose.getHeading(), scorePose.getHeading())
+                .addPath (new BezierLine(currentPose, scorePose))
+                .setLinearHeadingInterpolation(currentPose.getHeading(), scorePose.getHeading())
+                .build();
+
+        scorePreload2 = follower.pathBuilder()
+                .addPath (new BezierLine(currentPose, scorePose2))
+                .setLinearHeadingInterpolation(currentPose.getHeading(), scorePose2.getHeading())
                 .build();
 
     }
 
     @Override
     public void init() {
+
+        if(robot.TeleOpRunning){
+            Auton = false;
+        }else{
+            Auton = true;
+        }
+
+        if(Auton){
+            intakeFull = true;
+        }
 
 // NAJ CompBotConstants is a file/class that contains the definition of the gryo and drive motors among other things
         //super.init();
@@ -123,22 +145,100 @@ updateTelemetry();
                 break;
 
             case _10_preStart:
-                currentStage = stage._20_prelaunch;
+                if(intakeFull) {
+                    if (robot.trapezoidAutoAim.CurrentTurretColor == TrapezoidAutoAim.TurretColor.Red) {
+                        if (follower.getPose().getY() <= 36) {
+
+                            currentStage = stage._20_prelaunchRN;
+                        } else {
+                            currentStage = stage._20_prelaunchRF;
+                        }
+                    } else {
+                        if (follower.getPose().getY() <= 36) {
+
+                            currentStage = stage._20_prelaunchBN;
+                        } else {
+                            currentStage = stage._20_prelaunchBF;
+                        }
+                    }
+                }else{
+                    if (robot.trapezoidAutoAim.CurrentTurretColor == TrapezoidAutoAim.TurretColor.Red) {
+                        if (follower.getPose().getY() <= 36) {
+
+                            currentStage = stage._20_pickUp1RN;
+                        } else {
+                            currentStage = stage._20_pickUp1RF;
+                        }
+                    } else {
+                        if (follower.getPose().getY() <= 36) {
+
+                            currentStage = stage._20_pickUp1BN;
+                        } else {
+                            currentStage = stage._20_pickUp1BF;
+                        }
+                    }
+                }
+
+
                 break;
 
-            case _20_prelaunch:
+            case _20_prelaunchRN:
                 if(!follower.isBusy()){
                     follower.followPath(scorePreload, true);
                   //  robot.launcher.cmdOutfar();
                     robot.autoRPM.Measure = true;
                     runtime.reset();
-                    currentStage = stage._30_Launch2;
+                    currentStage = stage._30_LaunchN;
 
             }
              break;
 
+            case _20_pickUp1BF:
+                if(!follower.isBusy()){
+                    follower.followPath(scorePreload2, true);  // go pickup if effort + auto
+                    //  robot.launcher.cmdOutfar();
+                    robot.autoRPM.Measure = true;
+                    runtime.reset();
+                    currentStage = stage._30_LaunchF;
 
-            case _30_Launch2:
+                }
+                break;
+
+            case _20_prelaunchRF:
+                if(!follower.isBusy()){
+                    follower.followPath(scorePreload2, true);
+                    //  robot.launcher.cmdOutfar();
+                    robot.autoRPM.Measure = true;
+                    runtime.reset();
+                    currentStage = stage._30_LaunchF;
+
+                }
+                break;
+
+            case _20_prelaunchBN:
+                if(!follower.isBusy()){
+                    follower.followPath(scorePreload, true);
+                    //  robot.launcher.cmdOutfar();
+                    robot.autoRPM.Measure = true;
+                    runtime.reset();
+                    currentStage = stage._30_LaunchN;
+
+                }
+                break;
+
+            case _20_prelaunchBF:
+                if(!follower.isBusy()){
+                    follower.followPath(scorePreload2, true);
+                    //  robot.launcher.cmdOutfar();
+                    robot.autoRPM.Measure = true;
+                    runtime.reset();
+                    currentStage = stage._30_LaunchF;
+
+                }
+                break;
+
+
+            case _30_LaunchN:
                 if (!follower.isBusy() || runtime.milliseconds() > 1000) {
                     dolaunch_process();
                     currentStage = stage._40_RunningCornerPickup;
@@ -209,8 +309,16 @@ stop();
 
             _00_unknown,
             _10_preStart,
-            _20_prelaunch,
-            _30_Launch2,
+            _20_prelaunchRN,
+            _20_prelaunchRF,
+            _20_prelaunchBN,
+            _20_prelaunchBF,
+            _20_pickUp1RN,
+            _20_pickUp1RF,
+            _20_pickUp1BN,
+            _20_pickUp1BF,
+            _30_LaunchN,
+            _30_LaunchF,
             _40_RunningCornerPickup,
             _46_RunningCheck,
             _50_Launch1,

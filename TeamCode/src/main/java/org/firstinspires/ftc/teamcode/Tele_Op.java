@@ -4,6 +4,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+
 import org.firstinspires.ftc.teamcode.Autons.TestAuton;
 import org.firstinspires.ftc.teamcode.Common.CommonLogic;
 import org.firstinspires.ftc.teamcode.Common.Settings;
@@ -13,6 +14,7 @@ import org.firstinspires.ftc.teamcode.Hardware.DriveTrain;
 import org.firstinspires.ftc.teamcode.Hardware.Robot;
 import org.firstinspires.ftc.teamcode.Hardware.AutoAim;
 import org.firstinspires.ftc.teamcode.Hardware.TrapezoidAutoAim;
+import org.firstinspires.ftc.teamcode.pedroPathing.SystemX;
 
 @com.qualcomm.robotcore.eventloop.opmode.TeleOp(name = "Tele_Op", group = "TeleOp")
 //@Disabled
@@ -20,7 +22,8 @@ public class Tele_Op extends OpMode {
     private static final String TAGTeleop = "8492-Teleop";
     //RobotTest robot = new RobotTest();
     Robot robot = new Robot();
-    // Declare OpMode members.
+    private SystemX systemX;
+    //    // Declare OpMode members.
     private boolean gp1_prev_a = false;
     private boolean gp1_prev_b = false;
     private boolean gp1_prev_x = false;
@@ -59,24 +62,22 @@ public class Tele_Op extends OpMode {
     private boolean EndGame3b = false;
     private boolean EndGame4b = false;
     private boolean UppiesOverrideEnabled = false;
-    private boolean VerityIsDriving = false;
-    private boolean VOverideAvail = false;
-
-    private double FilteredHeading = 0.0;
-    private final double FILTER_ALPHA = 0.15;
+    private boolean SystemXActive = false;
 
     private ElapsedTime runtime = new ElapsedTime();
     private ElapsedTime Gameruntime = new ElapsedTime();
     private ElapsedTime EndGameTime = new ElapsedTime();
     private ElapsedTime Gameruntime2 = new ElapsedTime();
-    private ElapsedTime EndGameTime2 = new ElapsedTime();
+    private ElapsedTime EndGameTime2= new ElapsedTime();
     private ElapsedTime uppiesInhibitor = new ElapsedTime();
-    private ElapsedTime VOveride = new ElapsedTime();
     private double HLIW = 500;
     public Alliance CurrentAlliance;
     //HowLongItWork
 
     private AutoRPM visionController;
+
+
+    //*********************************************************************************************
 
     //Code to run ONCE when the driver hits INIT
 
@@ -92,8 +93,8 @@ public class Tele_Op extends OpMode {
         //----------------------------------------------------------------------------------------------
         // msStuckDetectInit = Settings.msStuckDetectInit;
         // msStuckDetectInitLoop = Settings.msStuckDetectInitLoop;
-        // msStuckDetectStart = Settings.msStuckDetectStart;
-        // msStuckDetectLoop = Settings.msStuckDetectLoop;
+        //msStuckDetectStart = Settings.msStuckDetectStart;
+        //msStuckDetectLoop = Settings.msStuckDetectLoop;
         // msStuckDetectStop = Settings.msStuckDetectStop;
 
         telemetry.addData("Tele_Op", "Initialized");
@@ -114,20 +115,19 @@ public class Tele_Op extends OpMode {
         // Most robots need the motor on one side to be reversed to drive forward
         // Reverse the motor that runs backwards when connected directly to the battery
 
-        if (TestAuton.Alliance == "Red") {
+        if(TestAuton.Alliance == "Red"){
             CurrentAlliance = Alliance.Red;
-
-        } else if (TestAuton.Alliance == "Blue") {
+        } else if(TestAuton.Alliance == "Blue"){
             CurrentAlliance = Alliance.Blue;
-
-        } else if (TestAuton.Alliance == "Unknown") {
+        }else if(TestAuton.Alliance == "Unknown"){
             CurrentAlliance = Alliance.Unknown;
-
-        } else {
+        }else{
             CurrentAlliance = Alliance.NoAuto;
         }
 
     }
+
+    //*********************************************************************************************
 
     //Code to run REPEATEDLY after the driver hits INIT, but before they hit PLAY
 
@@ -136,6 +136,8 @@ public class Tele_Op extends OpMode {
         robot.init_loop();
     }
 
+    //*********************************************************************************************
+
     //Code to run ONCE when the driver hits PLAY
 
     @Override
@@ -143,26 +145,40 @@ public class Tele_Op extends OpMode {
         Runtime.getRuntime();
         // Gameruntime.reset();
         //Gameruntime2.reset();
+        robot.TeleOpRunning = true;
 
-        if (CurrentAlliance == Alliance.Red) {
+        if(CurrentAlliance == Alliance.Red){
             robot.intake.cmdRED();
-        } else if (CurrentAlliance == Alliance.Blue) {
+            robot.trapezoidAutoAim.CurrentTurretColor = TrapezoidAutoAim.TurretColor.Red;
+        }else if(CurrentAlliance == Alliance.Blue){
             robot.intake.cmdBLUE();
-        } else if (CurrentAlliance == Alliance.Unknown) {
+            robot.trapezoidAutoAim.CurrentTurretColor = TrapezoidAutoAim.TurretColor.Blue;
+        }else if(CurrentAlliance == Alliance.Unknown){
             robot.intake.cmdPURPLE();
-        } else if (CurrentAlliance == Alliance.NoAuto) {
+            robot.trapezoidAutoAim.CurrentTurretColor = TrapezoidAutoAim.TurretColor.Unknown;
+        }else if(CurrentAlliance == Alliance.NoAuto){
             robot.intake.cmdYELLOW();
-        } else {
+            robot.trapezoidAutoAim.CurrentTurretColor = TrapezoidAutoAim.TurretColor.NoAuto;
+        }else{
 
         }
 
+        // robot.lighting.UpdateBaseColor(RevBlinkinLedDriver.BlinkinPattern.GOLD);
+        //robot.signalSign.doUP();
+        //robot.swing_arm_and_lift.SetPOS(Swing_Arm_And_Lift.Mode.PICKUP);
     }
+
+    //*********************************************************************************************
 
     // Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP
 
     @Override
-    public void
-    loop() {
+    public void loop() {
+
+        if(SystemXActive){
+            systemX.loop();
+        }
+
         robot.loop();
 
         write2Log();
@@ -171,53 +187,45 @@ public class Tele_Op extends OpMode {
             bAutoTurn = false;
         }
         if (gamepad1.right_trigger > 0.4) {
-            tHeading = (int) Math.round(robot.targetAngleCalc());
+            tHeading = (int)Math.round(robot.targetAngleCalc());
             bAutoTurn = true;
         }
+        //AutoAim tied to Left Trigger hold
+        /*
+        if (gamepad1.left_trigger > 0.2) {
 
-        if (gamepad1.left_trigger > 0.2) {   // MJD
-            robot.autoAim.setDriverOverride(false);   // MJD
-            robot.autoAim.update();                   // MJD
+            // MJD — allow auto aim to run
+            robot.autoAim.setDriverOverride(false);
 
-            robot.driveTrain.cmdTeleOp(
-                    CommonLogic.joyStickMath(-gamepad1.left_stick_y),
-                    CommonLogic.joyStickMath(gamepad1.left_stick_x),
-                    0,   // rotation handled by AutoAim // MJD
-                    DriveTrain.DTrain_NORMALSPEED
-            );
+            double angle = robot.autoAim.computeAimAngle();
 
-            return;
-        }
+            if (!Double.isNaN(angle)) {
+                int heading = (int)Math.round(angle);
 
-        robot.autoAim.setDriverOverride(true);
+                // MJD — auto-turn robot chassis toward tag
+                robot.driveTrain.cmdTeleOp(
+                        CommonLogic.joyStickMath(gamepad1.left_stick_y * -1),
+                        CommonLogic.joyStickMath(gamepad1.left_stick_x),
+                        robot.driveTrain.autoTurn(heading),
+                        DriveTrain.DTrain_NORMALSPEED
+                );
+            }
 
-        double rotation;   // MJD
-
-        if (bAutoTurn) {   // MJD
-            rotation = robot.driveTrain.autoTurn(tHeading);   // MJD
         } else {
-            rotation = CommonLogic.joyStickMath(gamepad1.right_stick_x);   // MJD
+
+            // MJD — driver regains full control when trigger released
+            robot.autoAim.setDriverOverride(true);
+
         }
 
-        double speed;   // MJD
-        if (gamepad1.right_bumper) {
-            speed = DriveTrain.DTrain_FASTSPEED;
-        } else if (gamepad1.left_bumper) {
-            speed = DriveTrain.DTrain_SLOWSPEED;
-        } else {
-            speed = DriveTrain.DTrain_NORMALSPEED;
-        }
+         */
 
-        // FINAL DRIVE COMMAND — MJD
-        robot.driveTrain.cmdTeleOp(
-                CommonLogic.joyStickMath(-gamepad1.left_stick_y),
-                CommonLogic.joyStickMath(gamepad1.left_stick_x),
-                rotation,   // MJD
-                speed       // MJD
-        );
+
+
+
 
         double turretStick = gamepad2.right_stick_x;
-        /*
+/*
         if (Math.abs(turretStick) > 0.1) {
             robot.autoAim.setDriverOverride(true);
             robot.turret.manualControl(turretStick);
@@ -225,7 +233,9 @@ public class Tele_Op extends OpMode {
             robot.autoAim.setDriverOverride(false);
         }
 
-         */
+ */
+
+
 
         /*if(CurrentAlliance == Alliance.Red){
             robot.turret.trapezoidAutoAim.CurrentTurretColor = TrapezoidAutoAim.TurretColor.Red;
@@ -238,7 +248,9 @@ public class Tele_Op extends OpMode {
         }else{
             robot.turret.trapezoidAutoAim.CurrentTurretColor = TrapezoidAutoAim.TurretColor.Unknown;
         }
-        */
+    */
+
+
 
         /*
         if(Gameruntime.seconds() >= 85){
@@ -327,37 +339,40 @@ public class Tele_Op extends OpMode {
         }
          */
 
-        if (VerityIsDriving) {
-            robot.driveTrain.cmdTeleOp(CommonLogic.joyStickMath(gamepad1.left_stick_y * -1), CommonLogic.joyStickMath(gamepad1.left_stick_x), robot.driveTrain.autoTurn(tHeading), robot.driveTrain.DTrain_SLOWSPEED);
-        }
-
         //***********   Gamepad 1 controls ********
-        if (gamepad1.left_trigger <= 0.2) {   // MJD
-            robot.autoAim.setDriverOverride(true);   // MJD
+        if (bAutoTurn) {
+            if (gamepad1.right_bumper) {
+                robot.driveTrain.cmdTeleOp(CommonLogic.joyStickMath(gamepad1.left_stick_y * -1),
+                        CommonLogic.joyStickMath(gamepad1.left_stick_x),
+                        robot.driveTrain.autoTurn(tHeading), robot.driveTrain.DTrain_FASTSPEED);
+            } else if (gamepad1.left_bumper) {
+                robot.driveTrain.cmdTeleOp(CommonLogic.joyStickMath(gamepad1.left_stick_y * -1),
+                        CommonLogic.joyStickMath(gamepad1.left_stick_x),
+                        robot.driveTrain.autoTurn(tHeading), robot.driveTrain.DTrain_SLOWSPEED);
 
-            if (bAutoTurn) {
-
-                if (gamepad1.right_bumper) {
-                    robot.driveTrain.cmdTeleOp(CommonLogic.joyStickMath(gamepad1.left_stick_y * -1), CommonLogic.joyStickMath(gamepad1.left_stick_x), robot.driveTrain.autoTurn(tHeading), robot.driveTrain.DTrain_FASTSPEED);
-                } else if (gamepad1.left_bumper) {
-                    robot.driveTrain.cmdTeleOp(CommonLogic.joyStickMath(gamepad1.left_stick_y * -1), CommonLogic.joyStickMath(gamepad1.left_stick_x), robot.driveTrain.autoTurn(tHeading), robot.driveTrain.DTrain_SLOWSPEED);
-
-                } else {
-
-                    robot.driveTrain.cmdTeleOp(CommonLogic.joyStickMath(gamepad1.left_stick_y * -1), CommonLogic.joyStickMath(gamepad1.left_stick_x), robot.driveTrain.autoTurn(tHeading), robot.driveTrain.DTrain_NORMALSPEED);
-                }
             } else {
-                if (gamepad1.right_bumper) {
-                    robot.driveTrain.cmdTeleOp(CommonLogic.joyStickMath(gamepad1.left_stick_y * -1), CommonLogic.joyStickMath(gamepad1.left_stick_x), CommonLogic.joyStickMath(gamepad1.right_stick_x), robot.driveTrain.DTrain_FASTSPEED);
-                } else if (gamepad1.left_bumper) {
-                    robot.driveTrain.cmdTeleOp(CommonLogic.joyStickMath(gamepad1.left_stick_y * -1), CommonLogic.joyStickMath(gamepad1.left_stick_x), CommonLogic.joyStickMath(gamepad1.right_stick_x), robot.driveTrain.DTrain_SLOWSPEED);
 
-                } else {
-
-                    robot.driveTrain.cmdTeleOp(CommonLogic.joyStickMath(gamepad1.left_stick_y * -1), CommonLogic.joyStickMath(gamepad1.left_stick_x), CommonLogic.joyStickMath(gamepad1.right_stick_x), robot.driveTrain.DTrain_NORMALSPEED);
-                }
-
+                robot.driveTrain.cmdTeleOp(CommonLogic.joyStickMath(gamepad1.left_stick_y * -1),
+                        CommonLogic.joyStickMath(gamepad1.left_stick_x),
+                        robot.driveTrain.autoTurn(tHeading), robot.driveTrain.DTrain_NORMALSPEED);
             }
+        } else {
+            if (gamepad1.right_bumper) {
+                robot.driveTrain.cmdTeleOp(CommonLogic.joyStickMath(gamepad1.left_stick_y * -1),
+                        CommonLogic.joyStickMath(gamepad1.left_stick_x),
+                        CommonLogic.joyStickMath(gamepad1.right_stick_x), robot.driveTrain.DTrain_FASTSPEED);
+            } else if (gamepad1.left_bumper) {
+                robot.driveTrain.cmdTeleOp(CommonLogic.joyStickMath(gamepad1.left_stick_y * -1),
+                        CommonLogic.joyStickMath(gamepad1.left_stick_x),
+                        CommonLogic.joyStickMath(gamepad1.right_stick_x), robot.driveTrain.DTrain_SLOWSPEED);
+
+            } else {
+
+                robot.driveTrain.cmdTeleOp(CommonLogic.joyStickMath(gamepad1.left_stick_y * -1),
+                        CommonLogic.joyStickMath(gamepad1.left_stick_x),
+                        CommonLogic.joyStickMath(gamepad1.right_stick_x), robot.driveTrain.DTrain_NORMALSPEED);
+            }
+
         }
 
         if (Math.abs(gamepad1.right_stick_y) > Settings.JOYSTICK_DEADBAND_STICK) {
@@ -387,12 +402,14 @@ public class Tele_Op extends OpMode {
         }
 
         if (gamepad1.right_trigger > 0.8) {
-            robot.trapezoidAutoAim.PrimitiveDriver = false;
+             robot.trapezoidAutoAim.PrimitiveDriver = false;
 
-        } else {
-            robot.trapezoidAutoAim.PrimitiveDriver = true;
-            robot.trapezoidAutoAim.CurrentMode = TrapezoidAutoAim.Mode.NotTrying;
+        }else{
+             robot.trapezoidAutoAim.PrimitiveDriver = true;
+             robot.trapezoidAutoAim.CurrentMode = TrapezoidAutoAim.Mode.NotTrying;
+
         }
+
 
         if ((gamepad1.right_trigger <= 0.79) && (gamepad1.right_trigger > 0.10)) {
 
@@ -429,12 +446,12 @@ public class Tele_Op extends OpMode {
         }
 
         if (CommonLogic.oneShot(gamepad1.dpad_up, gp1_prev_dpad_up)) {
-            if (uppiesInhibitor.seconds() >= 100 || UppiesOverrideEnabled) {
+            if(uppiesInhibitor.seconds() >= 100 || UppiesOverrideEnabled){
                 robot.uppies.cmdUp();
             }
 
         }
-        if (CommonLogic.oneShotRelease(gamepad1.dpad_up, gp1_prev_dpad_up)) {
+        if(CommonLogic.oneShotRelease(gamepad1.dpad_up, gp1_prev_dpad_up)){
             robot.uppies.cmdStop();
         }
 
@@ -443,22 +460,20 @@ public class Tele_Op extends OpMode {
         }
 
         if (CommonLogic.oneShot(gamepad1.dpad_down, gp1_prev_dpad_down)) {
-            if (uppiesInhibitor.seconds() >= 100 || UppiesOverrideEnabled) {
+            if(uppiesInhibitor.seconds() >= 100 || UppiesOverrideEnabled){
                 robot.uppies.cmdDown();
             }
 
         }
-        if (CommonLogic.oneShotRelease(gamepad1.dpad_down, gp1_prev_dpad_down)) {
+        if(CommonLogic.oneShotRelease(gamepad1.dpad_down, gp1_prev_dpad_down)){
             robot.uppies.cmdStop();
         }
 
         //***********   Gamepad 2 controls ********
 
         // Bumpers close and open the gripper
-        if ((gamepad2.left_bumper == true)) {
-
+        if (gamepad2.left_bumper) {
             LaunchTelleTouch();
-
         }
 
         if (CommonLogic.oneShot(gamepad2.right_bumper, gp2_prev_right_bumper)) {
@@ -485,12 +500,6 @@ public class Tele_Op extends OpMode {
         if (gamepad2.start) {
 //            robot.cmdExcecuteBumpStack();   // this was SetPOS() not setting the mode
             //          robot.lighting.UpdateBaseColor(RevBlinkinLedDriver.BlinkinPattern.AQUA);
-            VOveride.reset();
-            VOverideAvail = true;
-        } else {
-            if (VOveride.milliseconds() >= 500) {
-                VOverideAvail = false;
-            }
 
         }
 
@@ -506,16 +515,8 @@ public class Tele_Op extends OpMode {
         }
 
         if (CommonLogic.oneShot(gamepad2.y, gp2_prev_y)) {
-            if (VOverideAvail) {
-                if (VerityIsDriving) {
-                    VerityIsDriving = false;
-                } else {
-                    VerityIsDriving = true;
-                }
-            } else {
-                NoLaunch();
-                robot.autoRPM.Measure = false;
-            }
+            NoLaunch();
+            robot.autoRPM.Measure = false;
         }
 
         if (CommonLogic.oneShot(gamepad2.x, gp2_prev_x)) {
@@ -523,11 +524,13 @@ public class Tele_Op extends OpMode {
             if (robot.intake.AtIntakeStop == false) {
                 robot.intake.cmdStop();
                 robot.intake.AtIntakeStop = true;
-            } else {
+            }
+            else {
                 robot.intake.cmdBackward();
                 robot.intake.AtIntakeStop = false;
             }
         }
+
 
         //robot.swing_arm_and_lift.SwingPos(robot.swing_arm_and_lift.LASTSWINGPOSITION + (int)(gamepad2.left_stick_x) * 5);
 
@@ -538,7 +541,8 @@ public class Tele_Op extends OpMode {
         if (Math.abs(gamepad2.left_stick_y) > Settings.JOYSTICK_DEADBAND_STICK) {
             //robot.subLifter.stickControl(-gamepad2.left_stick_y);
             //robot.capper.cmdTeleOp((gamepad2.left_stick_y * 0.5) + (gamepad2.right_stick_y * 0.5));
-        } else {
+        }
+        else{
         }
 
         //robot.swing_arm_and_lift.LiftPos(robot.swing_arm_and_lift.LASTLIFTPOSITION + (int)(gamepad2.right_stick_y) * 5);
@@ -549,16 +553,16 @@ public class Tele_Op extends OpMode {
         }
 
         if (CommonLogic.oneShot(gamepad2.dpad_up, gp2_prev_dpad_up)) {
-           // LaunchLaser();
+            //LaunchLaser();
         }
 
         if (CommonLogic.oneShot(gamepad2.dpad_down, gp2_prev_dpad_down)) {
-            if (robot.autoRPM.Measure == false) {
-                robot.autoRPM.Measure = true;
-                LaunchAutoRPM();
-            } else {
-                robot.autoRPM.Measure = false;
-                robot.launcher.cmdStop();
+            if(!robot.autoRPM.Measure){
+              //  robot.autoRPM.Measure = true;
+               // LaunchAutoRPM();
+            }else{
+                //robot.autoRPM.Measure = false;
+                //robot.launcher.cmdStop();
             }
 
         }
@@ -569,17 +573,17 @@ public class Tele_Op extends OpMode {
         if (CommonLogic.oneShot(gamepad2.dpad_left, gp2_prev_dpad_left)) {
         }
 
-        if (gamepad2.right_trigger > 0.8) {
-            LaunchFar();
+        if (gamepad2.right_trigger > 0.8){
+            //LaunchFar();
             robot.bCkSenors = false;
         }
 
-        if ((gamepad2.right_trigger <= 0.79) && (gamepad2.right_trigger > 0.10)) {
+        if ((gamepad2.right_trigger <= 0.79) && (gamepad2.right_trigger > 0.10)){
         }
 
         if (gamepad2.left_trigger > 0.7) { //0.8
             robot.launcherBlocker.cmdUnBlock();
-        } else {
+        }else{
             robot.launcherBlocker.cmdBlock();  //experiment
         }
 
@@ -612,14 +616,15 @@ public class Tele_Op extends OpMode {
         gp2_prev_start = gamepad2.start;
     }
 
+    //*********************************************************************************************
+
     //Code to run ONCE after the driver hits STOP
 
     @Override
     public void stop() {
         robot.stop();
     }
-
-    /*
+/*
     private int getTurnDirection(){
         boolean a = gamepad1.a;
         boolean b = gamepad1.b;
@@ -628,48 +633,49 @@ public class Tele_Op extends OpMode {
         boolean RDP = gamepad1.dpad_right;
         boolean LDP = gamepad1.dpad_left;
 
-        if(a){
-            bAutoTurn = true;
+    if(a){
+        bAutoTurn = true;
 
             return 59;
 
-        }
-        else if (b){
-            bAutoTurn = true;
-            if (y){
-                return -135;
-            }else {
-                return -45;
-            }
-        }
-        else if (y){
-            bAutoTurn = true;
-            if(x){
-                return 135;
-            }else{
-                return -59;
-            }
-        }
-        else if(x){
-            bAutoTurn = true;
-            return 45;
-        }
-
-        /*else if(RDP){ //comment
-            bAutoTurn = true;
-            return -6;
-        }
-        else if(LDP){
-            bAutoTurn = true;           put back
-            return 6;
-        }//comment
-        else {
-            return tHeading;
+    }
+    else if (b){
+        bAutoTurn = true;
+        if (y){
+            return -135;
+        }else {
+            return -45;
         }
     }
+    else if (y){
+        bAutoTurn = true;
+        if(x){
+            return 135;
+        }else{
+            return -59;
+        }
+    }
+    else if(x){
+        bAutoTurn = true;
+       return 45;
+    }
+
+    /*else if(RDP){ //comment
+        bAutoTurn = true;
+        return -6;
+    }
+    else if(LDP){
+        bAutoTurn = true;           put back
+        return 6;
+    }//comment
+    else {
+        return tHeading;
+    }
+   }
     */
 
-    private void write2Log() {
+    //*********************************************************************************************
+    private void  write2Log() {
 
 //
 //    RobotLog.aa(TAGTeleop, " gp1_prev_a : " + gp1_prev_a);
@@ -677,7 +683,7 @@ public class Tele_Op extends OpMode {
 //    RobotLog.aa(TAGTeleop, " gp1_prev_x : " + gp1_prev_x);
 //    RobotLog.aa(TAGTeleop, " gp1_prev_y : " + gp1_prev_y);
 //    RobotLog.aa(TAGTeleop, " gp1_prev_right_bumper : " + gp1_prev_right_bumper);
-//    RobotLog.aa(TAGTeleop, " gp1_prev_left_bumper : " + gp1_prev_left_bumper);
+//   RobotLog.aa(TAGTeleop, " gp1_prev_left_bumper : " + gp1_prev_left_bumper);
 //    RobotLog.aa(TAGTeleop, " gp1_prev_dpad_up : " + gp1_prev_dpad_up);
 //    RobotLog.aa(TAGTeleop, " gp1_prev_dpad_down : " + gp1_prev_dpad_down);
 //    RobotLog.aa(TAGTeleop, " gp1_prev_dpad_left : " + gp1_prev_dpad_left);
@@ -693,16 +699,17 @@ public class Tele_Op extends OpMode {
         //RobotLog.aa(TAGTeleop, " gp2_prev_dpad_down : " + gp2_prev_dpad_down);
 //    RobotLog.aa(TAGTeleop, " gp2_prev_dpad_left : " + gp2_prev_dpad_left);
 //    RobotLog.aa(TAGTeleop, " gp2_prev_dpad_right : " + gp2_prev_dpad_right);
-
+//
+//
     }
 
     public void LaunchLaser() {         //wait for launcher to spin up to speed.
         robot.launcher.cmdoutlaser();
         if (robot.launcher.bAtSpeed) {
-            if (robot.launcherBlocker.AtUnBlocked == true) {
+            if(robot.launcherBlocker.AtUnBlocked == true){
                 robot.transitionRoller.cmdSpin();
             }
-            if (robot.launcherBlocker.AtUnBlocked == false) {
+            if(robot.launcherBlocker.AtUnBlocked == false) {
                 robot.transitionRoller.cmdStop();
             }
         }
@@ -711,10 +718,10 @@ public class Tele_Op extends OpMode {
     public void LaunchTelleTouch() {         //wait for launcher to spin up to speed.
         robot.launcher.cmdOuttelletouch();
         if (robot.launcher.bAtSpeed) {
-            if (robot.launcherBlocker.AtUnBlocked == true) {
+            if(robot.launcherBlocker.AtUnBlocked == true){
                 robot.transitionRoller.cmdSpin();
             }
-            if (robot.launcherBlocker.AtUnBlocked == false) {
+            if(robot.launcherBlocker.AtUnBlocked == false) {
                 robot.transitionRoller.cmdStop();
             }
         }
@@ -723,40 +730,45 @@ public class Tele_Op extends OpMode {
     public void LaunchTouch() {         //wait for launcher to spin up to speed.
         robot.launcher.cmdOuttouch();
         if (robot.launcher.bAtSpeed) {
-            if (robot.launcherBlocker.AtUnBlocked == true) {
+            if(robot.launcherBlocker.AtUnBlocked == true){
                 robot.transitionRoller.cmdSpin();
             }
-            if (robot.launcherBlocker.AtUnBlocked == false) {
+            if(robot.launcherBlocker.AtUnBlocked == false) {
                 robot.transitionRoller.cmdStop();
             }
         }
     }
 
-    public void LaunchNear() {         //wait for launcher to spin up to speed.
+    public void LaunchNear(){         //wait for launcher to spin up to speed.
         robot.launcher.cmdOutnear();
         if (robot.launcher.bAtSpeed) {
-            if (robot.launcherBlocker.AtUnBlocked == true) {
+            if(robot.launcherBlocker.AtUnBlocked == true){
                 robot.transitionRoller.cmdSpin();
             }
-            if (robot.launcherBlocker.AtUnBlocked == false) {
+            if(robot.launcherBlocker.AtUnBlocked == false) {
                 robot.transitionRoller.cmdStop();
             }
         }
     }
 
-    public void LaunchFar() {          //wait for launcher to spin up to speed.
+    public void LaunchFar(){          //wait for launcher to spin up to speed.
         robot.launcher.cmdOutfar();
-        if (robot.launcher.bAtSpeed) {
-            if (robot.launcherBlocker.AtUnBlocked == true) {
+        if (robot.launcher.bAtSpeed){
+            if(robot.launcherBlocker.AtUnBlocked == true) {
                 robot.transitionRoller.cmdSpin();
-            } else {
+            }
+            else{
                 robot.transitionRoller.cmdStop();
             }
         }
     }
 
     public void LaunchAutoRPM() {
-        double[] rpms = visionController.calculateRPMs(robot.limey.getTx(), robot.limey.getTy(), robot.limey.getTagAngle());
+        double[] rpms = visionController.calculateRPMs(
+                robot.limey.getTx(),
+                robot.limey.getTy(),
+                robot.limey.getTagAngle()
+        );
 
         robot.launcher.setTargetRPMs(rpms[0], rpms[1]);
 
@@ -773,17 +785,31 @@ public class Tele_Op extends OpMode {
 
     }
 
-    public void NoLaunch() {
+
+
+    public void NoLaunch(){
         robot.transitionRoller.cmdStop();
         robot.launcherBlocker.cmdBlock();
         robot.launcher.cmdStop();
     }
 
-    public enum Alliance {
+
+    public enum Alliance{
         Red,
         Blue,
         Unknown,
         NoAuto
     }
+
+
+
+
+
+
+
+
+
+
+
 
 }

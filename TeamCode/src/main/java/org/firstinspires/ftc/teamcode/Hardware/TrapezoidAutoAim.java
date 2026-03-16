@@ -77,32 +77,32 @@ public class TrapezoidAutoAim {
         if(!PrimitiveDriver) {
             if (CurrentTurretColor == TurretColor.Red) {
                 if (limey.getTagID() == 24) {
-                    if (limey.getTx() > 72 - YawDif) {
+                    if (limey.getTx() > 72 + YawDif) {
                         JackHappy = false;
                         CurrentMode = Mode.Targeting;
                         //maybe change to ty
                         if(limey.getTx() <= 36 || limey.getTx() >= 108){
-                            driveTrain.cmdTurn(Math.abs(driveTrain.getCurrentHeading() + 4),0.70);
-                            heading = heading + 4;
-                            // turret.cmdRight();
-                        }else{
-                            driveTrain.cmdTurn(Math.abs(driveTrain.getCurrentHeading() + 1), 0.35);
-                            heading = heading + 1;
-                        }
-                    } else if (limey.getTx() < 72 - YawDif) {
-                        JackHappy = false;
-                        CurrentMode = Mode.Targeting;
-                        if(limey.getTx() <= 36 || limey.getTx() >= 108){
-                            driveTrain.cmdTurn(Math.abs(driveTrain.getCurrentHeading() - 4),0.70);
+                            driveTrain.cmdTurn(Math.abs(driveTrain.getCurrentHeading() - 4),0.35);
                             heading = heading - 4;
-                            // turret.cmdLeft();
+                            // turret.cmdRight();
                         }else{
                             driveTrain.cmdTurn(Math.abs(driveTrain.getCurrentHeading() - 1), 0.35);
                             heading = heading - 1;
                         }
+                    } else if (limey.getTx() < 72 + YawDif) {
+                        JackHappy = false;
+                        CurrentMode = Mode.Targeting;
+                        if(limey.getTx() <= 36 || limey.getTx() >= 108){
+                            driveTrain.cmdTurn(Math.abs(driveTrain.getCurrentHeading() + 4),0.35);
+                            heading = heading + 4;
+                            // turret.cmdLeft();
+                        }else{
+                            driveTrain.cmdTurn(Math.abs(driveTrain.getCurrentHeading() + 1), 0.35);
+                            heading = heading + 1;
+                        }
                     } else {
                         // turret.cmdNo();
-                        if(limey.getTx() == 72 -YawDif) {
+                        if(limey.getTx() == 72 + YawDif) {
                             JackHappy = true;
                             CurrentMode = Mode.Target_Acquired;
                         }
@@ -118,33 +118,33 @@ public class TrapezoidAutoAim {
             }
             if (CurrentTurretColor == TurretColor.Blue) {
                 if (limey.getTagID() == 20) {
-                    if (limey.getTx() > 72 - YawDif) {
+                    if (limey.getTx() > 72 + YawDif) {
                         JackHappy = false;
                         CurrentMode = Mode.Targeting;
                         //turret.cmdRight();
                         if(limey.getTx() <= 36 || limey.getTx() >= 108){
-                            driveTrain.cmdTurn(Math.abs(driveTrain.getCurrentHeading() + 4),0.70);
-                            heading = heading + 4;
-                            // turret.cmdRight();
-                        }else{
-                            driveTrain.cmdTurn(Math.abs(driveTrain.getCurrentHeading() + 1), 0.35);
-                            heading = heading + 1;
-                        }
-                    } else if (limey.getTx() < 72 - YawDif) {
-                        JackHappy = false;
-                        CurrentMode = Mode.Targeting;
-                        //turret.cmdLeft();
-                        if(limey.getTx() <= 36 || limey.getTx() >= 108){
-                            driveTrain.cmdTurn(Math.abs(driveTrain.getCurrentHeading() - 4),0.70);
+                            driveTrain.cmdTurn(Math.abs(driveTrain.getCurrentHeading() - 4),0.35);
                             heading = heading - 4;
                             // turret.cmdRight();
                         }else{
                             driveTrain.cmdTurn(Math.abs(driveTrain.getCurrentHeading() - 1), 0.35);
                             heading = heading - 1;
                         }
+                    } else if (limey.getTx() < 72 + YawDif) {
+                        JackHappy = false;
+                        CurrentMode = Mode.Targeting;
+                        //turret.cmdLeft();
+                        if(limey.getTx() <= 36 || limey.getTx() >= 108){
+                            driveTrain.cmdTurn(Math.abs(driveTrain.getCurrentHeading() + 4),0.35);
+                            heading = heading + 4;
+                            // turret.cmdRight();
+                        }else{
+                            driveTrain.cmdTurn(Math.abs(driveTrain.getCurrentHeading() + 1), 0.35);
+                            heading = heading + 1;
+                        }
                     } else {
                         // turret.cmdNo();
-                        if(limey.getTx() == 72 - YawDif){
+                        if(limey.getTx() == 72 + YawDif){
                             JackHappy = true;
                             CurrentMode = Mode.Target_Acquired;
                         }
@@ -165,16 +165,18 @@ public class TrapezoidAutoAim {
         if(CurrentMode == Mode.Targeting && limey.getTagID() == -1){
             CurrentMode = Mode.Target_NotFound;
         }
-
+/*
         if(heading > 170){
-            driveTrain.cmdTurn(Math.abs(driveTrain.getCurrentHeading() - 340),0.70);
-            heading = heading - 340;
-        } else if (heading < -170){
             driveTrain.cmdTurn(Math.abs(driveTrain.getCurrentHeading() + 340),0.70);
             heading = heading + 340;
+        } else if (heading < -170){
+            driveTrain.cmdTurn(Math.abs(driveTrain.getCurrentHeading() - 340),0.70);
+            heading = heading - 340;
         }else {
 
         }
+
+ */
 
 
 

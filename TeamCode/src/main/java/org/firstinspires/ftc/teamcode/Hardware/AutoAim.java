@@ -11,7 +11,7 @@ public class AutoAim {
     private final Turret turret;
     private final DriveTrain driveTrain;
 
-    private boolean driverOverride = true;
+   // private boolean driverOverride = false;
 
     // Distance behind the tag to aim at
     private static final double OFFSET_INCHES = 8.0;
@@ -29,9 +29,9 @@ public class AutoAim {
         this.driveTrain = driveTrain;
     }
 
-    public void setDriverOverride(boolean override) {
-        this.driverOverride = override;
-    }
+  //  public void setDriverOverride(boolean override) {
+   //     this.driverOverride = override;
+    //}
 
     // FIELD-BASED AUTO AIM
     public double computeAimAngle() {   // MJD
@@ -226,28 +226,5 @@ public class AutoAim {
     }
     */
 
-    public void update() {   // MJD
 
-            if (driverOverride || driveTrain == null) return;   // MJD
-
-            double yaw = computeAimAngle();
-            if (Double.isNaN(yaw)) return;
-
-            double robotHeading = driveTrain.getCurrentHeading();
-
-            double targetHeading = robotHeading + yaw;
-
-            targetHeading = ((targetHeading % 360) + 360) % 360;
-
-            // driveTrain.turnToHeading((int) targetHeading);
-
-            double turnPower = driveTrain.autoTurn((int) targetHeading);   // MJD
-
-            driveTrain.cmdTeleOp(
-                    0,
-                    0,
-                    turnPower,
-                    DriveTrain.DTrain_NORMALSPEED
-            );
-    }
 }

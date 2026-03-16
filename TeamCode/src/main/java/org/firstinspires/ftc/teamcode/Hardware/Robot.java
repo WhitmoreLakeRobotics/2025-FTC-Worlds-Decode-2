@@ -35,6 +35,7 @@ public class Robot extends BaseHardware {
     private boolean slowMode = false;
     private double slowModeMultiplier = 0.5;
     public boolean bCkSenors = false;
+    public boolean TeleOpRunning = false;
 
 
 
