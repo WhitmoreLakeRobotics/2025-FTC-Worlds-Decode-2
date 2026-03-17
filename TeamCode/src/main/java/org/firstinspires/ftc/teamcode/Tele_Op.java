@@ -125,6 +125,16 @@ public class Tele_Op extends OpMode {
             CurrentAlliance = Alliance.NoAuto;
         }
 
+        if(SystemX.Alliance == "Red"){
+            CurrentAlliance = Alliance.Red;
+        } else if(SystemX.Alliance == "Blue"){
+            CurrentAlliance = Alliance.Blue;
+        }else if(SystemX.Alliance == "Unknown"){
+            CurrentAlliance = Alliance.Unknown;
+        }else{
+            CurrentAlliance = Alliance.NoAuto;
+        }
+
     }
 
     //*********************************************************************************************
