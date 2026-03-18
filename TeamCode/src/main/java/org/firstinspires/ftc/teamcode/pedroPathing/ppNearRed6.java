@@ -135,7 +135,7 @@ public class ppNearRed6 extends OpMode {
             case _25_ScorePrelaunch:
                 if (follower.isBusy()){
                     dolaunch_process();
-                    currentStage = stage._30_Spike1
+                    currentStage = stage._30_Spike1;
                 }
 
                  break;
