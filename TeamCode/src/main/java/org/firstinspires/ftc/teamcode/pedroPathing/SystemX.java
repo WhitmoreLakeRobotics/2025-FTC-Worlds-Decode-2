@@ -261,6 +261,7 @@ updateTelemetry();
                 }else {
                     follower.followPath(checkColor,true);
                     runtime.reset();
+                    currentStage
                 }
                 break;
 
@@ -269,7 +270,8 @@ updateTelemetry();
                    if(robot.limey.getTagID() == 24){
                        robot.trapezoidAutoAim.CurrentTurretColor = TrapezoidAutoAim.TurretColor.Red;
                        findAlliance();
-                       follower.followPath(correctPos,true);    // theory, NOT TESTED!!!
+                       follower.setStartingPose(scoreCheckCorrect);
+                       //follower.followPath(correctPos,true);    // theory, NOT TESTED!!!
                    runtime.reset();                                     //if not working try correctPos2(less likely to work)
                     currentStage = stage._10_preStart;                  // based on logical conclusion
                 }else if(robot.limey.getTagID() == 20) {
@@ -320,7 +322,7 @@ updateTelemetry();
 
             case _20_pickUp1BF:
                 if(!follower.isBusy()) {
-                    follower.followPath(scorePreload2, true);  // go pickup if effort + auto
+                   // follower.followPath(scorePreload2, true);  // go pickup if effort + auto
                     //  robot.launcher.cmdOutfar();
                     if(!phaseCompleted){
                         follower.followPath(spikeB3,true);
@@ -356,7 +358,7 @@ updateTelemetry();
 
             case _20_pickUp1BN:
                 if(!follower.isBusy()){
-                    follower.followPath(scorePreload2, true);  // go pickup if effort + auto
+                   // follower.followPath(scorePreload2, true);  // go pickup if effort + auto
                     //  robot.launcher.cmdOutfar();
                     if(!phaseCompleted){
                         follower.followPath(spikeB1,true);
@@ -389,7 +391,7 @@ updateTelemetry();
                 break;
                 case _20_pickUp1RF:
                 if(!follower.isBusy()){
-                    follower.followPath(scorePreload2, true);  // go pickup if effort + auto
+                  //  follower.followPath(scorePreload2, true);  // go pickup if effort + auto
                     //  robot.launcher.cmdOutfar();
                     if(!phaseCompleted){
                         follower.followPath(spikeR3,true);
@@ -426,7 +428,7 @@ updateTelemetry();
 
             case _20_pickUp1RN:
                 if(!follower.isBusy()){
-                    follower.followPath(scorePreload2, true);  // go pickup if effort + auto
+                    // follower.followPath(scorePreload2, true);  // go pickup if effort + auto
                     //  robot.launcher.cmdOutfar();
                     if(!phaseCompleted){
                         follower.followPath(spikeR1,true);
