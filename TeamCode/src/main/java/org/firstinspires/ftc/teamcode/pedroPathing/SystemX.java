@@ -14,11 +14,13 @@ import com.pedropathing.paths.PathChain;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Hardware.Intake;
 import org.firstinspires.ftc.teamcode.Hardware.Robot;
 import org.firstinspires.ftc.teamcode.Hardware.TrapezoidAutoAim;
+import org.firstinspires.ftc.teamcode.Tele_Op;
 
 @Disabled
 @Autonomous(name = "TheInnocentSystemThatDoesAbsolutelyNothing", group = "PP")
@@ -29,13 +31,16 @@ public class SystemX extends OpMode {
 
     private String thisUpdate = "0";
     private TelemetryManager telemetryMU;
-    private stage currentStage = stage._00_unknown;
+    public stage currentStage = stage._00_unknown;
     private ElapsedTime runtime = new ElapsedTime();
     private boolean Auton = false;
     public boolean intakeFull = false;
     //public boolean did1First = false;
     public boolean completed2 = false;
     public boolean phaseCompleted = false;
+    public boolean goToFarLaunch = false;
+    public boolean goToPickTunnel = false;
+    public boolean main = false;
 
     public static String Alliance;
 
@@ -47,6 +52,10 @@ public class SystemX extends OpMode {
     public Pose currentPose = new Pose(follower.getPose().getX(), follower.getPose().getY(), Math.toRadians(follower.getPose().getHeading()));
     public static Pose startPose = new Pose(10, 10, Math.toRadians(90)); // Start Pose of our robot.
     public static Pose scorePose = new Pose(15, 15, Math.toRadians(114)); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
+    public static Pose launchFarRed = new Pose(48, 96, Math.toRadians(135));
+    public static Pose launchFarBlue = new Pose(96, 96, Math.toRadians(45));
+    public static Pose pickTunnelRed = new Pose(19, 35, Math.toRadians(190));
+    public static Pose pickTunnelBlue = new Pose(125, 35, Math.toRadians(-10));
     public static Pose scorePose2 = new Pose(72, 96, Math.toRadians(10));
     public static Pose scoreCheck = new Pose(90,135,(Math.toRadians(90)));   //check
     public static Pose startPose2 = new Pose(110, 135, Math.toRadians(90));
@@ -76,7 +85,7 @@ public class SystemX extends OpMode {
 
     private PathChain scorePreload;
     private PathChain grabPickup1, grabPickup1a, grabPickup1b, grabPickup1c, scorePickup1, grabPickup2a, grabPickup2b, scorePickup2, goEndPose, goEndPose2, endPath;
-    private PathChain cyclePickup1, interruptedPickup,scorePreload2,checkColor, correctPos, correctPos2, spikeB1, spikeB2, spikeB3, spikeR1, spikeR2, spikeR3, doLaunchRN, doLaunchBN;
+    private PathChain cyclePickup1, interruptedPickup,scorePreload2,checkColor, correctPos, correctPos2, spikeB1, spikeB2, spikeB3, spikeR1, spikeR2, spikeR3, doLaunchRN, doLaunchBN, doLaunchRF, doLaunchBF, doPickupBT ,doPickupRT;
 
     public void buildPaths() {
         cyclePickup1 = follower.pathBuilder()
@@ -178,6 +187,26 @@ public class SystemX extends OpMode {
                 .setLinearHeadingInterpolation(currentPose.getHeading(), LaunchBN.getHeading())
                 .build();
 
+        doLaunchRF = follower.pathBuilder()
+                .addPath (new BezierLine(currentPose,launchFarRed))
+                .setLinearHeadingInterpolation(currentPose.getHeading(), launchFarRed.getHeading())
+                .build();
+
+        doLaunchBF = follower.pathBuilder()
+                .addPath (new BezierLine(currentPose,launchFarBlue))
+                .setLinearHeadingInterpolation(currentPose.getHeading(), launchFarBlue.getHeading())
+                .build();
+
+        doPickupBT = follower.pathBuilder()
+                .addPath (new BezierLine(currentPose,pickTunnelBlue))
+                .setLinearHeadingInterpolation(currentPose.getHeading(), pickTunnelBlue.getHeading())
+                .build();
+
+        doPickupRT = follower.pathBuilder()
+                .addPath (new BezierLine(currentPose,pickTunnelRed))
+                .setLinearHeadingInterpolation(currentPose.getHeading(), pickTunnelRed.getHeading())
+                .build();
+
 
     }
 
@@ -189,6 +218,8 @@ public class SystemX extends OpMode {
         }else{
             Auton = true;
         }
+
+        main = true;
 
 // NAJ CompBotConstants is a file/class that contains the definition of the gryo and drive motors among other things
         //super.init();
@@ -225,6 +256,7 @@ public class SystemX extends OpMode {
     public void start () {
         //super.start();
         robot.start();
+
     }
 
     @Override
@@ -236,7 +268,9 @@ updateTelemetry();
         follower.update();
         switch (currentStage) {
             case _00_unknown:
-                currentStage = stage._10_preStart;
+                if(main) {
+                    currentStage = stage._10_preStart;
+                }
                 break;
 
             case _05_findTorA:
@@ -261,7 +295,7 @@ updateTelemetry();
                 }else {
                     follower.followPath(checkColor,true);
                     runtime.reset();
-                    currentStage
+                    currentStage = stage._08_AutoPos2;
                 }
                 break;
 
@@ -322,7 +356,7 @@ updateTelemetry();
 
             case _20_pickUp1BF:
                 if(!follower.isBusy()) {
-                   // follower.followPath(scorePreload2, true);  // go pickup if effort + auto
+                    follower.followPath(scorePreload2, true);  // go pickup if effort + auto
                     //  robot.launcher.cmdOutfar();
                     if(!phaseCompleted){
                         follower.followPath(spikeB3,true);
@@ -358,7 +392,7 @@ updateTelemetry();
 
             case _20_pickUp1BN:
                 if(!follower.isBusy()){
-                   // follower.followPath(scorePreload2, true);  // go pickup if effort + auto
+                    follower.followPath(scorePreload2, true);  // go pickup if effort + auto
                     //  robot.launcher.cmdOutfar();
                     if(!phaseCompleted){
                         follower.followPath(spikeB1,true);
@@ -391,7 +425,7 @@ updateTelemetry();
                 break;
                 case _20_pickUp1RF:
                 if(!follower.isBusy()){
-                  //  follower.followPath(scorePreload2, true);  // go pickup if effort + auto
+                    follower.followPath(scorePreload2, true);  // go pickup if effort + auto
                     //  robot.launcher.cmdOutfar();
                     if(!phaseCompleted){
                         follower.followPath(spikeR3,true);
@@ -428,7 +462,7 @@ updateTelemetry();
 
             case _20_pickUp1RN:
                 if(!follower.isBusy()){
-                    // follower.followPath(scorePreload2, true);  // go pickup if effort + auto
+                    follower.followPath(scorePreload2, true);  // go pickup if effort + auto
                     //  robot.launcher.cmdOutfar();
                     if(!phaseCompleted){
                         follower.followPath(spikeR1,true);
@@ -515,10 +549,34 @@ updateTelemetry();
 stop();
                 }
                 break;
-
-
-
 }
+if(!Auton) {
+    if (goToFarLaunch) {
+        if (robot.trapezoidAutoAim.CurrentTurretColor == TrapezoidAutoAim.TurretColor.Red) {
+            follower.followPath(doLaunchRF, false);
+
+        } else {
+            follower.followPath(doLaunchBF, false);
+
+        }
+        goToFarLaunch = false;
+    }
+}
+
+        if(!Auton) {
+            if (goToPickTunnel) {
+                if (robot.trapezoidAutoAim.CurrentTurretColor == TrapezoidAutoAim.TurretColor.Red) {
+                    follower.followPath(doPickupBT, false);
+
+                } else {
+                    follower.followPath(doPickupRT, false);
+
+                }
+                goToPickTunnel = false;
+            }
+        }
+
+
 
         }
 
@@ -551,8 +609,10 @@ stop();
             _50_Launch1,
             _100_end;
 
-
         }
+
+    public enum steps1 {
+    }
 
         private void dolaunch_process(){
 
