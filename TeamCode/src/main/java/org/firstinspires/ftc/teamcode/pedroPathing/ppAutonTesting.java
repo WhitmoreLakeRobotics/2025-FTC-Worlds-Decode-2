@@ -218,7 +218,6 @@ stop();
 
 
         }
-
         private void dolaunch_process(){
 
             robot.launcherBlocker.cmdUnBlock();
@@ -228,6 +227,14 @@ stop();
 
 
 
+
+    }
+
+    private void endlaunch_process(){
+
+        robot.launcherBlocker.cmdBlock();
+        robot.autoRPM.Measure = false;
+        robot.launcher.cmdStop();
 
     }
 

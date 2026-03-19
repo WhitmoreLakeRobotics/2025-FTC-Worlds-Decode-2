@@ -40,10 +40,15 @@ public class pp6CycleBlueFar extends OpMode {
     public static Pose pickup1bPose = new Pose(20, 20, Math.toRadians(190)); // (First Set) of Artifacts picked up.
     public static Pose pickup1bPoseC = new Pose(1, 27, Math.toRadians(200));
     public static Pose pickup1cPose = new Pose(4, 13.5, Math.toRadians(180));
+    public static Pose currentPose  = new Pose(follower.getPose().getX(), follower.getPose().getY(), Math.toRadians(follower.getPose().getHeading()));
+    public static Pose spikeB2start = new Pose (35,60,Math.toRadians(90));
+    public static Pose spikeB2end = new Pose (15,60,Math.toRadians(90));
+
+
 
     private PathChain scorePreload;
     private PathChain grabPickup1, grabPickup1a, grabPickup1b, grabPickup1c, scorePickup1, grabPickup2a, grabPickup2b, scorePickup2, goEndPose, goEndPose2, endPath;
-    private PathChain cyclePickup1;
+    private PathChain cyclePickup1,spikeB2 ;
 
 
     public void buildPaths() {
@@ -62,6 +67,14 @@ public class pp6CycleBlueFar extends OpMode {
                 .addPath (new BezierLine(startPose, scorePose))
                 .setLinearHeadingInterpolation(startPose.getHeading(), scorePose.getHeading())
                 .build();
+
+        spikeB2 = follower.pathBuilder()
+                .addPath(new BezierLine(currentPose, spikeB2start))
+                .setLinearHeadingInterpolation(currentPose.getHeading(), spikeB2start.getHeading())
+                .addPath (new BezierLine(spikeB2start,spikeB2end))
+                .setLinearHeadingInterpolation(spikeB2start.getHeading(), spikeB2end.getHeading())
+                .build();
+
     }
 
     @Override
@@ -135,39 +148,34 @@ public class pp6CycleBlueFar extends OpMode {
             case _30_ScorePreload:
                 if (!follower.isBusy()) {
                     dolaunch_process();
-                    telemetryMU.addData("Corner pickup", follower.getPose());
-                }else {
                     currentStage = stage._40_PickupSpike1;
                 }
                 break;
             case _40_PickupSpike1:
-                if (follower.isBusy()) {
-
-                    telemetryMU.addData("Corner pickup", follower.getPose());
-                }else {
+                if (runtime.milliseconds() > 500 ) { //add sensors here
+                    endlaunch_process();
+                follower.followPath(cyclePickup1);
                     currentStage = stage._45_PreLaunch2;
                 }
                 break;
             case _45_PreLaunch2:
-                if (follower.isBusy()) {
+                if (!follower.isBusy()) {
                     robot.autoRPM.Measure = true;
-                    telemetryMU.addData("Corner pickup", follower.getPose());
-                }else {
                     currentStage = stage._50_Launch2;
                 }
                 break;
             case _50_Launch2:
-                if (follower.isBusy()) {
+                if (!follower.isBusy()) {
+                   dolaunch_process();
 
-                    telemetryMU.addData("Corner pickup", follower.getPose());
                 }else {
                     currentStage = stage._60_PickupConer1;
                 }
                 break;
             case _60_PickupConer1:
                 if (follower.isBusy()) {
+                    endlaunch_process();
 
-                    telemetryMU.addData("Corner pickup", follower.getPose());
                 }else {
                     currentStage = stage._70_PreLaunch3;
                 }
@@ -175,23 +183,23 @@ public class pp6CycleBlueFar extends OpMode {
             case _70_PreLaunch3:
                 if (follower.isBusy()) {
                     robot.autoRPM.Measure = true;
-                    telemetryMU.addData("Corner pickup", follower.getPose());
+
                 }else {
                     currentStage = stage._75_Launch3;
                 }
                 break;
             case _75_Launch3:
                 if (follower.isBusy()) {
+                    dolaunch_process();
 
-                    telemetryMU.addData("Corner pickup", follower.getPose());
                 }else {
                     currentStage = stage._80_PickupSpike2;
                 }
                 break;
             case _80_PickupSpike2:
                 if (follower.isBusy()) {
+                    endlaunch_process();
 
-                    telemetryMU.addData("Corner pickup", follower.getPose());
                 }else {
                     currentStage = stage._90_PreLaunch4;
                 }
@@ -199,7 +207,7 @@ public class pp6CycleBlueFar extends OpMode {
             case _90_PreLaunch4:
                 if (follower.isBusy()) {
                     robot.autoRPM.Measure = true;
-                    telemetryMU.addData("Corner pickup", follower.getPose());
+
                 }else {
                     currentStage = stage._100_Launch4;
 
@@ -208,7 +216,7 @@ public class pp6CycleBlueFar extends OpMode {
             case _100_Launch4:
                 if (follower.isBusy()) {
 
-                    telemetryMU.addData("Corner pickup", follower.getPose());
+
                 }else {
                     currentStage = stage._110_PickupCorner2;
                 }
@@ -216,7 +224,7 @@ public class pp6CycleBlueFar extends OpMode {
             case _110_PickupCorner2:
                 if (follower.isBusy()) {
 
-                    telemetryMU.addData("Corner pickup", follower.getPose());
+
                 }else {
                     currentStage = stage._120_Prelaunch5;
                 }
@@ -224,7 +232,7 @@ public class pp6CycleBlueFar extends OpMode {
             case _120_Prelaunch5:
                 if (follower.isBusy()) {
                     robot.autoRPM.Measure = true;
-                    telemetryMU.addData("Corner pickup", follower.getPose());
+
                 }else {
                     currentStage = stage._130_Launch5;
                 }
@@ -232,7 +240,7 @@ public class pp6CycleBlueFar extends OpMode {
             case _130_Launch5:
                 if (follower.isBusy()) {
 
-                    telemetryMU.addData("Corner pickup", follower.getPose());
+
                 }else {
                     currentStage = stage._140_PickupCorner6;
                 }
@@ -240,14 +248,14 @@ public class pp6CycleBlueFar extends OpMode {
             case _140_PickupCorner6:
                 if (follower.isBusy()) {
 
-                    telemetryMU.addData("Corner pickup", follower.getPose());
+
                 }else {
                     currentStage = stage._150_PreLaunch6;
                 }
             case _150_PreLaunch6:
                 if (follower.isBusy()) {
                     robot.autoRPM.Measure = true;
-                    telemetryMU.addData("Corner pickup", follower.getPose());
+
                 }else {
                     currentStage = stage._160_Launch6;
                 }
@@ -255,7 +263,7 @@ public class pp6CycleBlueFar extends OpMode {
             case _160_Launch6:
                 if (follower.isBusy()) {
 
-                    telemetryMU.addData("Corner pickup", follower.getPose());
+
                 }else {
                     currentStage = stage._170_ParkToBeContinued;
                 }
@@ -263,7 +271,7 @@ public class pp6CycleBlueFar extends OpMode {
             case _170_ParkToBeContinued:
                 if (follower.isBusy()) {
 
-                    telemetryMU.addData("Corner pickup", follower.getPose());
+
                 }else {
                     currentStage = stage._200_end;
                 }
@@ -323,6 +331,14 @@ public class pp6CycleBlueFar extends OpMode {
         robot.transitionRoller.cmdSpin();
         robot.intake.cmdFoward();
         runtime.reset();
+
+    }
+
+    private void endlaunch_process(){
+
+        robot.launcherBlocker.cmdBlock();
+        robot.autoRPM.Measure = false;
+        robot.launcher.cmdStop();
 
     }
 

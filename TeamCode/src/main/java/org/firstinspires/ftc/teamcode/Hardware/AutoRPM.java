@@ -61,10 +61,10 @@ public class AutoRPM {
         double r1top = 1900;   // test value
 
         double d2 = 2.9;       // meters
-        double r2top = 3600;
+        double r2top = 3600; // r=range
 
-        double m_top = (r2top - r1top) / (d2 - d1);
-        double b_top = r1top - m_top * d1;
+        double m_top = (r2top - r1top) / (d2 - d1); // m=meters
+        double b_top = r1top - m_top * d1; // b=base
 
         double targetTopRPM = m_top * distance + b_top;
 
@@ -72,7 +72,7 @@ public class AutoRPM {
         double r1bottom = 4000;
         double r2bottom = 5500;
 
-        double m_bottom = (r2bottom - r1bottom) / (d2 - d1);
+        double m_bottom = (r2bottom - r1bottom) / (d2 - d1); // y = mx + b
         double b_bottom = r1bottom - m_bottom * d1;
 
         double targetBottomRPM = m_bottom * distance + b_bottom;
