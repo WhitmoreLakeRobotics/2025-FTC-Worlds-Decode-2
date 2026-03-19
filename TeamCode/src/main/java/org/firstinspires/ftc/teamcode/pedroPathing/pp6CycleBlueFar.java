@@ -27,6 +27,7 @@ public class pp6CycleBlueFar extends OpMode {
     private TelemetryManager telemetryMU;
     private stage currentStage = stage._00_unknown;
     private ElapsedTime runtime = new ElapsedTime();
+    public boolean End = false;
 
 
 
@@ -121,7 +122,7 @@ public class pp6CycleBlueFar extends OpMode {
 
             case _20_PreLaunch:
                 if (!follower.isBusy()) {
-                    follower.followPath(PreLaunch,  true);
+                    follower.followPath(scorePreload,  true);
                     //lastPose = startPose;
                     /* currentTargetPose = scorePose;*/
                     // follower.update();
@@ -272,6 +273,7 @@ public class pp6CycleBlueFar extends OpMode {
                     telemetryMU.addData("Drive Complete?", follower.isBusy());
                     stop();
                     runtime.reset();
+                    End = true;
                 }
                 break;
 

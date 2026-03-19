@@ -27,6 +27,7 @@ public class ppNearRed6 extends OpMode {
     private TelemetryManager telemetryMU;
     private stage currentStage = stage._00_unknown;
     private ElapsedTime runtime = new ElapsedTime();
+    public boolean End = false;
 
 
 
@@ -152,6 +153,7 @@ public class ppNearRed6 extends OpMode {
                     telemetryMU.addData("Drive Complete?", follower.isBusy());
                     stop();
                     runtime.reset();
+                    End = true;
                 }
                 break;
 

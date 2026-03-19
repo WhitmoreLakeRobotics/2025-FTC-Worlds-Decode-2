@@ -27,9 +27,12 @@ import org.firstinspires.ftc.teamcode.Tele_Op;
 public class SystemX extends OpMode {
 
     Robot robot = new Robot();
+    ppNearRed6 ppNearRed6 = new ppNearRed6();
+    pp6CycleBlueFar pp6CycleBlueFar = new pp6CycleBlueFar();
 
 
     private String thisUpdate = "0";
+    public String choosenAuton = "None";
     private TelemetryManager telemetryMU;
     public stage currentStage = stage._00_unknown;
     private ElapsedTime runtime = new ElapsedTime();
@@ -261,6 +264,8 @@ public class SystemX extends OpMode {
 
     @Override
     public void loop() {
+        
+        telemetry.addData("Auton Running",choosenAuton);
 
 updateTelemetry();
         telemetry.addData("Auton_Current_Stage ", currentStage);
@@ -268,30 +273,19 @@ updateTelemetry();
         follower.update();
         switch (currentStage) {
             case _00_unknown:
-                if(main) {
-                    currentStage = stage._10_preStart;
-                }
-                break;
-
-            case _05_findTorA:
-                if(Auton){
                     currentStage = stage._07_AutoPos;
-                }else {
-
-                    currentStage = stage._10_preStart;
-                }
                 break;
 
             case _07_AutoPos:
                 if(robot.limey.getTagID() == 24){  //if red
                     robot.trapezoidAutoAim.CurrentTurretColor = TrapezoidAutoAim.TurretColor.Red;
                     findAlliance();
-                    currentStage = stage._10_preStart;
+                    currentStage = stage._RedFar;
 
                 }else if(robot.limey.getTagID() == 20){//if blue
                     robot.trapezoidAutoAim.CurrentTurretColor = TrapezoidAutoAim.TurretColor.Blue;
                     findAlliance();
-                    currentStage = stage._10_preStart;
+                    currentStage = stage._BlueFar;
                 }else {
                     follower.followPath(checkColor,true);
                     runtime.reset();
@@ -317,236 +311,132 @@ updateTelemetry();
                 }
 
                 break;
-
-            case _10_preStart:
-                if(intakeFull || Auton) {
-                    if (robot.trapezoidAutoAim.CurrentTurretColor == TrapezoidAutoAim.TurretColor.Red) {
-                        if (follower.getPose().getY() <= 36) {
-
-                            currentStage = stage._20_prelaunchRN;
-                        } else {
-                            currentStage = stage._20_prelaunchRF;
-                        }
-                    } else {
-                        if (follower.getPose().getY() <= 36) {
-
-                            currentStage = stage._20_prelaunchBN;
-                        } else {
-                            currentStage = stage._20_prelaunchBF;
-                        }
-                    }
-                }else{
-                    if (robot.trapezoidAutoAim.CurrentTurretColor == TrapezoidAutoAim.TurretColor.Red) {
-                        if (follower.getPose().getY() <= 36) {
-
-                            currentStage = stage._20_pickUp1RN;
-                        } else {
-                            currentStage = stage._20_pickUp1RF;
-                        }
-                    } else {
-                        if (follower.getPose().getY() <= 36) {
-
-                            currentStage = stage._20_pickUp1BN;
-                        } else {
-                            currentStage = stage._20_pickUp1BF;
-                        }
-                    }
-                }
-                break;
-
-            case _20_pickUp1BF:
-                if(!follower.isBusy()) {
-                    follower.followPath(scorePreload2, true);  // go pickup if effort + auto
-                    //  robot.launcher.cmdOutfar();
-                    if(!phaseCompleted){
-                        follower.followPath(spikeB3,true);
-                        phaseCompleted = true;
-                    }else{
-                        if(!completed2){
-                            follower.followPath(spikeB2,true);
-                            phaseCompleted = true;
-                            completed2 = true;
-                        }else{
-                            follower.followPath(spikeB1,true);
-                            phaseCompleted = true;
-                        }
-                    }
-                    robot.intake.cmdFoward();
-                    runtime.reset();
-                    currentStage = stage._20_prelaunchBF;
-
-                }
+                
+            case _RedFar:
+                choosenAuton = "Red Far";
+                //currentStage = stage._100_end;
+                
 
                 break;
 
-            case _20_prelaunchBF:
-                if(!follower.isBusy()){
-                    follower.followPath(scorePreload, true);
-                  //  robot.launcher.cmdOutfar();
-                    robot.autoRPM.Measure = true;
-                    runtime.reset();
-                    currentStage = stage._30_Launch1;
+            case _RedNear:
+                ppNearRed6.init();
+                choosenAuton = "Red Near";
+                currentStage = stage._RedNear2;
+                //currentStage = stage._100_end;
 
-            }
-             break;
-
-            case _20_pickUp1BN:
-                if(!follower.isBusy()){
-                    follower.followPath(scorePreload2, true);  // go pickup if effort + auto
-                    //  robot.launcher.cmdOutfar();
-                    if(!phaseCompleted){
-                        follower.followPath(spikeB1,true);
-                        phaseCompleted = true;
-                    }else {
-                        if (!completed2) {
-                            follower.followPath(spikeB2, true);
-                            phaseCompleted = true;
-                            completed2 = true;
-                        } else {
-                            follower.followPath(spikeB3,true);
-                            phaseCompleted = true;
-                        }
-                    }
-                    robot.intake.cmdFoward();
-                    runtime.reset();
-                    currentStage = stage._20_prelaunchBN;
-                    }
                 break;
 
-            case _20_prelaunchBN:
-                if(!follower.isBusy()){
-                    follower.followPath(doLaunchBN, true);
-                    //  robot.launcher.cmdOutfar();
-                    robot.autoRPM.Measure = true;
-                    runtime.reset();
-                    currentStage = stage._30_LaunchF;
+            case _BlueFar:
+                pp6CycleBlueFar.init();
+                choosenAuton = "Blue Far";
+                currentStage = stage._BlueFar2;
+                //currentStage = stage._100_end;
 
-                }
-                break;
-                case _20_pickUp1RF:
-                if(!follower.isBusy()){
-                    follower.followPath(scorePreload2, true);  // go pickup if effort + auto
-                    //  robot.launcher.cmdOutfar();
-                    if(!phaseCompleted){
-                        follower.followPath(spikeR3,true);
-                        phaseCompleted = true;
-                    }else{
-                        if(!completed2){
-                            follower.followPath(spikeR2,true);
-                            phaseCompleted = true;
-                            completed2 = true;
-                        }else{
-                            follower.followPath(spikeR1,true);
-                            phaseCompleted = true;
-                        }
-                    }
-                    robot.intake.cmdFoward();
-                    runtime.reset();
-                    currentStage = stage._20_prelaunchRF;
-
-                }
                 break;
 
+            case _BlueNear:
+                choosenAuton = "Blue Near";
+                //currentStage = stage._100_end;
 
-
-            case _20_prelaunchRF:
-                if(!follower.isBusy()){
-                    follower.followPath(scorePreload, true);
-                    //  robot.launcher.cmdOutfar();
-                    robot.autoRPM.Measure = true;
-                    runtime.reset();
-                    currentStage = stage._30_Launch1;
-
-                }
                 break;
 
-            case _20_pickUp1RN:
-                if(!follower.isBusy()){
-                    follower.followPath(scorePreload2, true);  // go pickup if effort + auto
-                    //  robot.launcher.cmdOutfar();
-                    if(!phaseCompleted){
-                        follower.followPath(spikeR1,true);
-                        phaseCompleted = true;
-                    }else{
-                        if(!completed2){
-                            follower.followPath(spikeR2,true);
-                            phaseCompleted = true;
-                            completed2 = true;
-                        }else{
-                            follower.followPath(spikeR3,true);
-                            phaseCompleted = true;
-                        }
-                    }
-                    robot.intake.cmdFoward();
-                    runtime.reset();
-                    currentStage = stage._20_prelaunchRN;
+            case _RedFar2:
+                //choosenAuton = "Red Far";
+                //currentStage = stage._100_end;
 
-                }
+
                 break;
 
-            case _20_prelaunchRN:
-                if(!follower.isBusy()){
-                    follower.followPath(doLaunchRN, true);
-                    //  robot.launcher.cmdOutfar();
-                    robot.autoRPM.Measure = true;
-                    runtime.reset();
-                    currentStage = stage._30_LaunchF;
+            case _RedNear2:
+                ppNearRed6.init_loop();
+                currentStage = stage._RedNear3;
+                //choosenAuton = "Red Near";
+                //currentStage = stage._100_end;
 
-                }
                 break;
 
+            case _BlueFar2:
+                pp6CycleBlueFar.init_loop();
+                currentStage = stage._BlueFar3;
+                //choosenAuton = "Blue Far";
+                //currentStage = stage._100_end;
 
-            case _30_Launch1:
-                if (!follower.isBusy() || runtime.milliseconds() > 1000) {
-                    dolaunch_process();
-                    runtime.reset();
-                    currentStage = stage._10_preStart; //was _40_RunningCornerPickup
-                }
                 break;
 
+            case _BlueNear2:
+                //choosenAuton = "Blue Near";
+                //currentStage = stage._100_end;
 
-            case _40_RunningCornerPickup:
-                if (runtime.milliseconds() > 500) {
-                    robot.launcherBlocker.cmdBlock();
-                    robot.autoRPM.Measure = false;
-                    robot.launcher.cmdStop();
+                break;
 
+            case _RedFar3:
+                //choosenAuton = "Red Far";
+                //currentStage = stage._100_end;
 
-                if (!follower.isBusy()) {
-                    follower.followPath(cyclePickup1, true);
-                    //if we have 3 artifacts stop the path and go to next stage
-                    runtime.reset();
-                    currentStage = stage._46_RunningCheck;
-                }
+                break;
+                
+            case _RedNear3:
+                ppNearRed6.start();
+                currentStage = stage._RedNear4;
+                //choosenAuton = "Red Near";
+                //currentStage = stage._100_end;
 
-                    telemetryMU.addData("Corner pickup", follower.getPose());
-                }
-                    break;
+                break;
 
-            case _46_RunningCheck:
-                if (robot.intake.CurrentColor == Intake.Color.RED || !follower.isBusy()) {
-                    follower.breakFollowing();
-                    newPath();
-                    currentStage = stage._50_Launch1;
-                    runtime.reset();
+            case _BlueFar3:
+                pp6CycleBlueFar.start();
+                currentStage = stage._BlueFar4;
+                //choosenAuton = "Blue Far";
+                //currentStage = stage._100_end;
 
-                }
+                break;
 
+            case _BlueNear3:
+                //choosenAuton = "Blue Near";
+                //currentStage = stage._100_end;
+                
+                break;
 
-            case _50_Launch1:
-                if (!follower.isBusy()){
+            case _RedFar4:
+                //choosenAuton = "Red Far";
+                //currentStage = stage._100_end;
 
-                  robot.autoRPM.Measure = true;
-                 dolaunch_process();
-                      runtime.reset();
+                break;
+
+            case _RedNear4:
+                if(ppNearRed6.End){
+                    ppNearRed6.stop();
                     currentStage = stage._100_end;
+                }else {
+                    ppNearRed6.loop();
                 }
+                //choosenAuton = "Red Near";
+                //currentStage = stage._100_end;
 
+                break;
+
+            case _BlueFar4:
+                if(pp6CycleBlueFar.End){
+                    pp6CycleBlueFar.stop();
+                    currentStage = stage._100_end;
+                }else {
+                    pp6CycleBlueFar.loop();
+                }
+                //choosenAuton = "Blue Far";
+                //currentStage = stage._100_end;
+
+                break;
+
+            case _BlueNear4:
+                //choosenAuton = "Blue Near";
+                //currentStage = stage._100_end;
+
+                break;
 
             case _100_end:
                 if (!follower.isBusy()) {
                     telemetryMU.addData("Drive Complete?", follower.isBusy());
-stop();
                 }
                 break;
 }
@@ -607,6 +497,22 @@ if(!Auton) {
             _40_RunningCornerPickup,
             _46_RunningCheck,
             _50_Launch1,
+            _RedNear,
+            _RedFar,
+            _BlueNear,
+            _BlueFar,
+            _RedNear2,
+            _RedFar2,
+            _BlueNear2,
+            _BlueFar2,
+            _RedNear3,
+            _RedFar3,
+            _BlueNear3,
+            _BlueFar3,
+            _RedNear4,
+            _RedFar4,
+            _BlueNear4,
+            _BlueFar4,
             _100_end;
 
         }
