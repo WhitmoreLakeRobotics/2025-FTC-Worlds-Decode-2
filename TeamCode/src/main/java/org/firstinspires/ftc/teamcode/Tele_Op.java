@@ -11,6 +11,7 @@ import org.firstinspires.ftc.teamcode.Common.Settings;
 
 import org.firstinspires.ftc.teamcode.Hardware.AutoRPM;
 import org.firstinspires.ftc.teamcode.Hardware.DriveTrain;
+import org.firstinspires.ftc.teamcode.Hardware.Lighting;
 import org.firstinspires.ftc.teamcode.Hardware.Robot;
 import org.firstinspires.ftc.teamcode.Hardware.AutoAim;
 import org.firstinspires.ftc.teamcode.Hardware.TrapezoidAutoAim;
@@ -147,6 +148,27 @@ public class Tele_Op extends OpMode {
     @Override
     public void init_loop() {
         robot.init_loop();
+
+        if(CurrentAlliance == Alliance.Red){
+            robot.lighting.cmdREDa();
+            robot.lighting.CurrentTeam = Lighting.Team.RED;
+            robot.trapezoidAutoAim.CurrentTurretColor = TrapezoidAutoAim.TurretColor.Red;
+        }else if(CurrentAlliance == Alliance.Blue){
+            robot.lighting.cmdBLUEa();
+            robot.lighting.CurrentTeam = Lighting.Team.BLUE;
+            robot.trapezoidAutoAim.CurrentTurretColor = TrapezoidAutoAim.TurretColor.Blue;
+        }else if(CurrentAlliance == Alliance.Unknown){
+            robot.lighting.cmdPURPLEa();
+            robot.lighting.CurrentTeam = Lighting.Team.UNKNOWN;
+            robot.trapezoidAutoAim.CurrentTurretColor = TrapezoidAutoAim.TurretColor.Unknown;
+        }else if(CurrentAlliance == Alliance.NoAuto){
+            robot.lighting.cmdYELLOWa();
+            robot.lighting.CurrentTeam = Lighting.Team.UNKNOWN;
+            robot.trapezoidAutoAim.CurrentTurretColor = TrapezoidAutoAim.TurretColor.NoAuto;
+        }else{
+
+        }
+
     }
 
     //*********************************************************************************************
@@ -161,25 +183,30 @@ public class Tele_Op extends OpMode {
         robot.TeleOpRunning = true;
         systemX.main = false;
 
+        // robot.lighting.UpdateBaseColor(RevBlinkinLedDriver.BlinkinPattern.GOLD);
+        //robot.signalSign.doUP();
+        //robot.swing_arm_and_lift.SetPOS(Swing_Arm_And_Lift.Mode.PICKUP);
+
         if(CurrentAlliance == Alliance.Red){
-            robot.intake.cmdRED();
+            robot.lighting.cmdREDa();
+            robot.lighting.CurrentTeam = Lighting.Team.RED;
             robot.trapezoidAutoAim.CurrentTurretColor = TrapezoidAutoAim.TurretColor.Red;
         }else if(CurrentAlliance == Alliance.Blue){
-            robot.intake.cmdBLUE();
+            robot.lighting.cmdBLUEa();
+            robot.lighting.CurrentTeam = Lighting.Team.BLUE;
             robot.trapezoidAutoAim.CurrentTurretColor = TrapezoidAutoAim.TurretColor.Blue;
         }else if(CurrentAlliance == Alliance.Unknown){
-            robot.intake.cmdPURPLE();
+            robot.lighting.cmdPURPLEa();
+            robot.lighting.CurrentTeam = Lighting.Team.UNKNOWN;
             robot.trapezoidAutoAim.CurrentTurretColor = TrapezoidAutoAim.TurretColor.Unknown;
         }else if(CurrentAlliance == Alliance.NoAuto){
-            robot.intake.cmdYELLOW();
+            robot.lighting.cmdYELLOWa();
+            robot.lighting.CurrentTeam = Lighting.Team.UNKNOWN;
             robot.trapezoidAutoAim.CurrentTurretColor = TrapezoidAutoAim.TurretColor.NoAuto;
         }else{
 
         }
 
-        // robot.lighting.UpdateBaseColor(RevBlinkinLedDriver.BlinkinPattern.GOLD);
-        //robot.signalSign.doUP();
-        //robot.swing_arm_and_lift.SetPOS(Swing_Arm_And_Lift.Mode.PICKUP);
     }
 
     //*********************************************************************************************

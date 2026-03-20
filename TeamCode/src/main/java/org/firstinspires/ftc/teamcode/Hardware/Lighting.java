@@ -2,10 +2,12 @@ package org.firstinspires.ftc.teamcode.Hardware;
 
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.internal.system.Deadline;
+import org.firstinspires.ftc.teamcode.Tele_Op;
 
 /**
  * Base class for FTC Team 8492 defined hardware
@@ -25,7 +27,29 @@ public class Lighting extends BaseHardware {
     public int TempColor ;
     public static int TempColorTimeout = 500;
 
+    private Servo AllianceState;
+    private Servo IntakeState;
+    //private something something LiftOffLight
+
     private final static int GAMEPAD_LOCKOUT = 500;
+
+    public ColorAlliance CurrentColorA = ColorAlliance.OFF;
+    public ColorIntake CurrentColorI = ColorIntake.OFF;
+    public Team CurrentTeam = Team.UNKNOWN;
+
+    public static final double Green = 0.5;
+    public static final double Red = 0.28;
+    public static final double Yellow = 0.388;
+    public static final double Purple = 0.722;  //favwit
+    public static final double Blue = 0.6111;
+    public static final double Orange = 0.333;
+    public static final double White = 0.9;
+    public static final double Off = 0;
+
+    private ElapsedTime initLightTime = new ElapsedTime();
+
+    public boolean initLight1 = false;
+    public boolean initLight2 = false;
 
    private RevBlinkinLedDriver blinkinLedDriver;
    private RevBlinkinLedDriver.BlinkinPattern pattern = RevBlinkinLedDriver.BlinkinPattern.BLACK;
@@ -70,6 +94,20 @@ public class Lighting extends BaseHardware {
         //display = telemetry.addData("Display Kind: ", displayKind.toString());
         patternName = telemetry.addData("Pattern: ", pattern.toString());
 
+        AllianceState = hardwareMap.get(Servo.class, "AllianceState");
+        IntakeState = hardwareMap.get(Servo.class, "IntakeState");
+
+
+        initLightTime.reset();
+
+        initLight1 = true;
+        initLight2 = false;
+
+        CurrentColorI = ColorIntake.OFF;
+        CurrentColorA = ColorAlliance.OFF;
+        cmdOFFi();
+        cmdOFFa();
+
 
     }
 
@@ -81,6 +119,26 @@ public class Lighting extends BaseHardware {
      */
      public void init_loop(){
 
+         if (initLight1 && initLightTime.milliseconds() >= 750) {
+             if(CurrentTeam == Team.RED){
+                 cmdREDa();
+             }else if(CurrentTeam == Team.BLUE){
+                 cmdBLUEa();
+             }else{
+                 cmdWHITEa();
+             }
+             initLight1 = false;
+             initLight2 = true;
+             initLightTime.reset();
+         }
+
+         if (initLight2 && initLightTime.milliseconds() >= 750) {
+             cmdOFFa();
+             initLight2 = false;
+             initLight1 = true;
+             initLightTime.reset();
+         }
+
      }
 
     /**
@@ -91,6 +149,9 @@ public class Lighting extends BaseHardware {
      * Example usage: Starting another thread.
      */
     public void start(){
+
+        initLight1 = false;
+        initLight2 = false;
 
     }
 
@@ -130,4 +191,29 @@ private void ReturnToBaseColor () {
     }
 
 }
+
+    public void cmdREDa()    { AllianceState.setPosition(Red);    CurrentColorA = ColorAlliance.RED; }
+    public void cmdGREENa()  { AllianceState.setPosition(Green);  CurrentColorA = ColorAlliance.GREEN; }
+    public void cmdYELLOWa() { AllianceState.setPosition(Yellow); CurrentColorA = ColorAlliance.YELLOW; }
+    public void cmdPURPLEa() { AllianceState.setPosition(Purple); CurrentColorA = ColorAlliance.PURPLE; }
+    public void cmdBLUEa()   { AllianceState.setPosition(Blue);   CurrentColorA = ColorAlliance.BLUE; }
+    public void cmdORANGEa() { AllianceState.setPosition(Orange); CurrentColorA = ColorAlliance.ORANGE; }
+    public void cmdWHITEa() { AllianceState.setPosition(White); CurrentColorA = ColorAlliance.WHITE; }
+    public void cmdOFFa()    { AllianceState.setPosition(Off);    CurrentColorA = ColorAlliance.OFF; }
+
+    public void cmdREDi()    { IntakeState.setPosition(Red);    CurrentColorI = ColorIntake.RED; }
+    public void cmdGREENi()  { IntakeState.setPosition(Green);  CurrentColorI = ColorIntake.GREEN; }
+    public void cmdYELLOWi() { IntakeState.setPosition(Yellow); CurrentColorI = ColorIntake.YELLOW; }
+    public void cmdPURPLEi() { IntakeState.setPosition(Purple); CurrentColorI = ColorIntake.PURPLE; }
+    public void cmdBLUEi()   { IntakeState.setPosition(Blue);   CurrentColorI = ColorIntake.BLUE; }
+    public void cmdORANGEi() { IntakeState.setPosition(Orange); CurrentColorI = ColorIntake.ORANGE; }
+    public void cmdWHITEi() { IntakeState.setPosition(White); CurrentColorI = ColorIntake.WHITE; }
+    public void cmdOFFi()    { IntakeState.setPosition(Off);    CurrentColorI = ColorIntake.OFF; }
+
+    public enum ColorAlliance { GREEN, RED, YELLOW, PURPLE, BLUE, ORANGE, WHITE, OFF }
+
+    public enum ColorIntake { GREEN, RED, YELLOW, PURPLE, BLUE, ORANGE, WHITE, OFF }
+
+    public enum Team { RED, BLUE, UNKNOWN}
+
     }

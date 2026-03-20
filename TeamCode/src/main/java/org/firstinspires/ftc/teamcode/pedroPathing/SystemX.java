@@ -213,6 +213,8 @@ public class SystemX extends OpMode {
 
     }
 
+
+
     @Override
     public void init() {
 
@@ -226,19 +228,19 @@ public class SystemX extends OpMode {
 
 // NAJ CompBotConstants is a file/class that contains the definition of the gryo and drive motors among other things
         //super.init();
-        follower = CompBotConstants.createFollower(hardwareMap);
-        buildPaths();
-        PanelsConfigurables.INSTANCE.refreshClass(this);
-        follower.setStartingPose(startPose);
-        follower.update();
+       // follower = CompBotConstants.createFollower(hardwareMap);     p
+   //     buildPaths();                                  maybe p
+      //  PanelsConfigurables.INSTANCE.refreshClass(this);                 p
+      //  follower.setStartingPose(startPose);                   p
+      //  follower.update();                                        p
 //  pedroPanelsTelemetry.init();
-        Drawing.init();
-        telemetryMU = PanelsTelemetry.INSTANCE.getTelemetry();
+        //Drawing.init();                                                  p
+        //telemetryMU = PanelsTelemetry.INSTANCE.getTelemetry();                  p
 
 // disp[lay starting postition
         telemetryMU.addData("initialized postition - Update ", thisUpdate);
 // Feedback to Driver Hub for debugging
-        updateTelemetry();
+        //updateTelemetry();                         p
 
         robot.hardwareMap = hardwareMap;
         robot.telemetry = telemetry;
@@ -267,7 +269,7 @@ public class SystemX extends OpMode {
         
         telemetry.addData("Auton Running",choosenAuton);
 
-updateTelemetry();
+//updateTelemetry();                                                                   p
         telemetry.addData("Auton_Current_Stage ", currentStage);
         robot.autonLoop();
         follower.update();
@@ -287,28 +289,28 @@ updateTelemetry();
                     findAlliance();
                     currentStage = stage._BlueFar;
                 }else {
-                    follower.followPath(checkColor,true);
+                    //follower.followPath(checkColor,true);                   p
                     runtime.reset();
                     currentStage = stage._08_AutoPos2;
                 }
                 break;
 
             case _08_AutoPos2:
-                if(!follower.isBusy() || runtime.milliseconds() >= 1500) {
-                   if(robot.limey.getTagID() == 24){
+                //if(!follower.isBusy() || runtime.milliseconds() >= 1500) {                   p
+                   if(robot.limey.getTagID() == 24){  // use color senser
                        robot.trapezoidAutoAim.CurrentTurretColor = TrapezoidAutoAim.TurretColor.Red;
                        findAlliance();
-                       follower.setStartingPose(scoreCheckCorrect);
+                      // follower.setStartingPose(scoreCheckCorrect);                         p
                        //follower.followPath(correctPos,true);    // theory, NOT TESTED!!!
                    runtime.reset();                                     //if not working try correctPos2(less likely to work)
-                    currentStage = stage._10_preStart;                  // based on logical conclusion
-                }else if(robot.limey.getTagID() == 20) {
+                    currentStage = stage._RedNear;                  // based on logical conclusion
+                }else if(robot.limey.getTagID() == 20) { // use color senser
                        robot.trapezoidAutoAim.CurrentTurretColor = TrapezoidAutoAim.TurretColor.Blue;
                        findAlliance();
                        runtime.reset();
-                       currentStage = stage._10_preStart;
+                       currentStage = stage._BlueNear;
                    }
-                }
+              //  }                                 *w*           p
 
                 break;
                 
@@ -435,9 +437,9 @@ updateTelemetry();
                 break;
 
             case _100_end:
-                if (!follower.isBusy()) {
-                    telemetryMU.addData("Drive Complete?", follower.isBusy());
-                }
+                //if (!follower.isBusy()) {        p
+                   // telemetryMU.addData("Drive Complete?", follower.isBusy());   p
+                //}           p
                 break;
 }
 if(!Auton) {
@@ -484,14 +486,14 @@ if(!Auton) {
             _07_AutoPos,
             _08_AutoPos2,
             _10_preStart,
-            _20_prelaunchRN,
-            _20_prelaunchRF,
-            _20_prelaunchBN,
-            _20_prelaunchBF,
-            _20_pickUp1RN,
-            _20_pickUp1RF,
-            _20_pickUp1BN,
-            _20_pickUp1BF,
+            //_20_prelaunchRN,
+            //_20_prelaunchRF,
+            //_20_prelaunchBN,
+            //_20_prelaunchBF,
+            //_20_pickUp1RN,
+            //_20_pickUp1RF,
+            //_20_pickUp1BN,
+            //_20_pickUp1BF,
             _30_Launch1,
             _30_LaunchF,
             _40_RunningCornerPickup,
@@ -517,22 +519,14 @@ if(!Auton) {
 
         }
 
-    public enum steps1 {
-    }
-
         private void dolaunch_process(){
-
             robot.launcherBlocker.cmdUnBlock();
         robot.transitionRoller.cmdSpin();
             robot.intake.cmdFoward();
         runtime.reset();
-
-
-
-
     }
 
-
+/*
         private void updateTelemetry () {
             telemetryMU.addData("Follower Busy?", follower.isBusy());
             telemetryMU.addData("Current Stage", currentStage);
@@ -558,6 +552,9 @@ if(!Auton) {
             telemetryMU.update();
             Drawing.drawDebug(follower);
         }
+
+ */
+    /*
         private  void newPath(){
             interruptedPickup = follower.pathBuilder()
                     .addPath (new BezierLine(follower.getPose(), scorePose))
@@ -567,7 +564,9 @@ if(!Auton) {
 
         }
 
-    public void findAlliance(){
+     */
+
+    public void findAlliance(){   // use color senser
         double currentTagId = robot.limey.getTagID();
         if(currentTagId == 20){
             Alliance = "Blue";
