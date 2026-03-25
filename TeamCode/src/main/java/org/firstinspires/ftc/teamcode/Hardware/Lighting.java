@@ -51,14 +51,14 @@ public class Lighting extends BaseHardware {
     public boolean initLight1 = false;
     public boolean initLight2 = false;
 
-   private RevBlinkinLedDriver blinkinLedDriver;
-   private RevBlinkinLedDriver.BlinkinPattern pattern = RevBlinkinLedDriver.BlinkinPattern.BLACK;
-   private RevBlinkinLedDriver.BlinkinPattern baseColor = RevBlinkinLedDriver.BlinkinPattern.BLACK;
-   private Telemetry.Item patternName;
-   private Telemetry.Item display;
-   //private RevBlinkinLedDriver.BlinkinPattern displayKind;
-   private Deadline ledCycleDeadline;
-   private Deadline gamepadRateLimit;
+    private RevBlinkinLedDriver blinkinLedDriver;
+    private RevBlinkinLedDriver.BlinkinPattern pattern = RevBlinkinLedDriver.BlinkinPattern.BLACK;
+    private RevBlinkinLedDriver.BlinkinPattern baseColor = RevBlinkinLedDriver.BlinkinPattern.BLACK;
+    private Telemetry.Item patternName;
+    private Telemetry.Item display;
+    //private RevBlinkinLedDriver.BlinkinPattern displayKind;
+    private Deadline ledCycleDeadline;
+    private Deadline gamepadRateLimit;
 
     private enum DisplayKind {
         MANUAL,
@@ -117,29 +117,29 @@ public class Lighting extends BaseHardware {
      * This method will be called repeatedly when the INIT button is pressed.
      * This method is optional. By default this method takes no action.
      */
-     public void init_loop(){
+    public void init_loop(){
 
-         if (initLight1 && initLightTime.milliseconds() >= 750) {
-             if(CurrentTeam == Team.RED){
-                 cmdREDa();
-             }else if(CurrentTeam == Team.BLUE){
-                 cmdBLUEa();
-             }else{
-                 cmdWHITEa();
-             }
-             initLight1 = false;
-             initLight2 = true;
-             initLightTime.reset();
-         }
+        if (initLight1 && initLightTime.milliseconds() >= 750) {
+            if(CurrentTeam == Team.RED){
+                cmdREDa();
+            }else if(CurrentTeam == Team.BLUE){
+                cmdBLUEa();
+            }else{
+                cmdWHITEa();
+            }
+            initLight1 = false;
+            initLight2 = true;
+            initLightTime.reset();
+        }
 
-         if (initLight2 && initLightTime.milliseconds() >= 750) {
-             cmdOFFa();
-             initLight2 = false;
-             initLight1 = true;
-             initLightTime.reset();
-         }
+        if (initLight2 && initLightTime.milliseconds() >= 750) {
+            cmdOFFa();
+            initLight2 = false;
+            initLight1 = true;
+            initLightTime.reset();
+        }
 
-     }
+    }
 
     /**
      * User defined start method.
@@ -161,7 +161,7 @@ public class Lighting extends BaseHardware {
      * This method will be called repeatedly in a loop while this op mode is running
      */
     public void loop(){
-    ReturnToBaseColor();
+        ReturnToBaseColor();
     }
 
     /**
@@ -173,24 +173,24 @@ public class Lighting extends BaseHardware {
      */
     void stop(){
 
-}
-
-public void UpdateBaseColor (RevBlinkinLedDriver.BlinkinPattern newColor){
-   // pattern = RevBlinkinLedDriver.BlinkinPattern.RED;
-    baseColor = newColor;
-    blinkinLedDriver.setPattern(baseColor);
-
-}
-public void SetTempColor (RevBlinkinLedDriver.BlinkinPattern tempColor){
-    blinkinLedDriver.setPattern(tempColor);
-    runtime.reset();
-}
-private void ReturnToBaseColor () {
-    if (runtime.milliseconds() > TempColorTimeout) {
-        blinkinLedDriver.setPattern(baseColor);
     }
 
-}
+    public void UpdateBaseColor (RevBlinkinLedDriver.BlinkinPattern newColor){
+        // pattern = RevBlinkinLedDriver.BlinkinPattern.RED;
+        baseColor = newColor;
+        blinkinLedDriver.setPattern(baseColor);
+
+    }
+    public void SetTempColor (RevBlinkinLedDriver.BlinkinPattern tempColor){
+        blinkinLedDriver.setPattern(tempColor);
+        runtime.reset();
+    }
+    private void ReturnToBaseColor () {
+        if (runtime.milliseconds() > TempColorTimeout) {
+            blinkinLedDriver.setPattern(baseColor);
+        }
+
+    }
 
     public void cmdREDa()    { AllianceState.setPosition(Red);    CurrentColorA = ColorAlliance.RED; }
     public void cmdGREENa()  { AllianceState.setPosition(Green);  CurrentColorA = ColorAlliance.GREEN; }
@@ -216,4 +216,4 @@ private void ReturnToBaseColor () {
 
     public enum Team { RED, BLUE, UNKNOWN}
 
-    }
+}
