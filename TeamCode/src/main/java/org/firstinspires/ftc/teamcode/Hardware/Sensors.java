@@ -26,10 +26,10 @@ public class Sensors extends BaseHardware {
     //private ColorRangeSensor IntakeSensor;
     //private DistanceSensor RearLeftSensor
 
+    public ColorRangeSensor NTKAP1;
     public ColorRangeSensor NTKAP2;
     public ColorRangeSensor NTKAP3;
-
-    private boolean cmdComplete = true;
+    public ColorRangeSensor Plate;
     public boolean bothFilled = false;
     private boolean sensorStable = false;
     //private Mode CurrentMode = Mode.STOP;
@@ -189,7 +189,7 @@ public class Sensors extends BaseHardware {
 
     public void doStop(){
         //CurrentMode = Mode.STOP;
-        cmdComplete = true;
+       // cmdComplete = true;
     }
 
     public void cmdResetSensor(){

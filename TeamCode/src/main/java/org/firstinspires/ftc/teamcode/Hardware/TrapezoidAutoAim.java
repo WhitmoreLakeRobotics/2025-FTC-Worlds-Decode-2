@@ -190,6 +190,25 @@ public class TrapezoidAutoAim {
 
     }
 
+    public void followMe1(){
+        if(limey.getTagID() == 1){
+            if (limey.getTx() > 72){
+                driveTrain.cmdTurn(Math.abs(driveTrain.getCurrentHeading() - 1),0.35);
+            }else if(limey.getTx() < 72){
+                driveTrain.cmdTurn(Math.abs(driveTrain.getCurrentHeading() + 1),0.35);
+            }else{
+
+            }
+
+            if(limey.getTagDistance() > 5){
+                driveTrain.cmdDriveBySensors(1,driveTrain.getCurrentHeading(),0.35,driveTrain.getCurrentHeading());
+            }else{
+
+            }
+
+        }
+    }
+
 
 
     public enum Mode{

@@ -64,7 +64,7 @@ public class Tele_Op extends OpMode {
     private boolean EndGame3b = false;
     private boolean EndGame4b = false;
     private boolean UppiesOverrideEnabled = false;
-    private boolean SystemXActive = false;
+    //private boolean SystemXActive = false;
     private boolean systemXReady = false;
 
     private ElapsedTime runtime = new ElapsedTime();
@@ -216,15 +216,10 @@ public class Tele_Op extends OpMode {
     @Override
     public void loop() {
         systemX.loop();
-        if(SystemXActive){
-            systemX.main = true;
-        }else{
-            systemX.main = false;
-        }
-
         if(systemXTolTime.milliseconds() >= 500){
             systemXReady = false;
         }
+
 
 
 
@@ -468,8 +463,8 @@ public class Tele_Op extends OpMode {
         }
 
         if (gamepad1.left_trigger <= 0.8) {
-            systemXReady = true;
             systemXTolTime.reset();
+            systemXReady = true;
 
         }
 
@@ -511,6 +506,7 @@ public class Tele_Op extends OpMode {
         if (CommonLogic.oneShot(gamepad1.dpad_up, gp1_prev_dpad_up)) {
             if(uppiesInhibitor.seconds() >= 100 || UppiesOverrideEnabled){
                 robot.uppies.cmdUp();
+                robot.lighting.cmdYELLOWl();
             }
 
         }
@@ -525,6 +521,7 @@ public class Tele_Op extends OpMode {
         if (CommonLogic.oneShot(gamepad1.dpad_down, gp1_prev_dpad_down)) {
             if(uppiesInhibitor.seconds() >= 100 || UppiesOverrideEnabled){
                 robot.uppies.cmdDown();
+                robot.lighting.cmdOFFl();
             }
 
         }
