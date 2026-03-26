@@ -15,6 +15,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Hardware.Intake;
+import org.firstinspires.ftc.teamcode.Hardware.Lighting;
 import org.firstinspires.ftc.teamcode.Hardware.Robot;
 
 @Autonomous(name = "ppAutonTesting", group = "PP")
@@ -166,7 +167,7 @@ updateTelemetry();
                     break;
 
             case _46_RunningCheck:
-                if (robot.intake.CurrentColor == Intake.Color.RED || !follower.isBusy()) {
+                if (robot.lighting.CurrentColorI == Lighting.ColorIntake.RED || !follower.isBusy()) {
                     follower.breakFollowing();
                     newPath();
                     currentStage = stage._50_Launch1;

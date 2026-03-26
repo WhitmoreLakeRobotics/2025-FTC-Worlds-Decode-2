@@ -29,8 +29,6 @@ public class ppAutonBase extends OpMode {
     private stage currentStage = stage._00_unknown;
     private ElapsedTime runtime = new ElapsedTime();
 
-
-
     public static Follower follower;
     public static Pose startPose = new Pose(10, 10, Math.toRadians(90)); // Start Pose of our robot.
     public static Pose scorePose = new Pose(15, 15, Math.toRadians(114)); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.

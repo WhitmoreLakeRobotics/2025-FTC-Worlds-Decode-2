@@ -1,12 +1,9 @@
 package org.firstinspires.ftc.teamcode.Hardware;
 
-import android.graphics.Color;
-
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.ColorRangeSensor;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -29,28 +26,27 @@ public class Sensors extends BaseHardware {
     //private ColorRangeSensor IntakeSensor;
     //private DistanceSensor RearLeftSensor
 
-
-
-    public ColorSensor SDC01;
-    public ColorSensor SDC02;
-    public ColorSensor SDC03;
-    public ColorSensor NTKC01;
-
-
-
-
-
-    private boolean cmdComplete = true;
-    private Mode CurrentMode = Mode.STOP;
+    public ColorRangeSensor NTKAP1;
+    public ColorRangeSensor NTKAP2;
+    public ColorRangeSensor NTKAP3;
+    public ColorRangeSensor Plate;
+    public boolean bothFilled = false;
+    private boolean sensorStable = false;
+    //private Mode CurrentMode = Mode.STOP;
 
     private int SensorBlue;
     private int SensorRed;
     private int SensorGreen;
 
-    public TargetType SpindexerSlot1 = TargetType.UNKNOWNT;
-    public TargetType SpindexerSlot2 = TargetType.UNKNOWNT;
-    public TargetType SpindexerSlot3 = TargetType.UNKNOWNT;
-    public TargetType IntakeSlot = TargetType.UNKNOWNT;
+    public Distance2 CurrentDistance2 = Distance2.MISSING2;
+    public Distance3 CurrentDistance3 = Distance3.MISSING3;
+
+    private double NTKAP2distance = 999;
+    private double NTKAP3distance = 999;
+
+    private ElapsedTime sensorTime = new ElapsedTime();
+    private final double targRange = 6;
+
     /**
      * Hardware Mappings
      */
@@ -75,17 +71,10 @@ public class Sensors extends BaseHardware {
     public void init(){
         //DeliverySensor = hardwareMap.get(ColorSensor.class, "DeliveryS");
 
+        NTKAP3 = hardwareMap.get(ColorRangeSensor.class, "NTKAP3");
+        NTKAP2 = hardwareMap.get(ColorRangeSensor.class, "NTKAP2");
 
-
-
-        SDC01 = hardwareMap.get(ColorSensor.class, "SDC01");
-        SDC02 = hardwareMap.get(ColorSensor.class, "SDC02");
-        SDC03 = hardwareMap.get(ColorSensor.class, "SDC03");
-        NTKC01 = hardwareMap.get(ColorSensor.class, "NTKC01");
-
-
-
-
+        sensorTime.reset();
 
     }
 
@@ -115,28 +104,7 @@ public class Sensors extends BaseHardware {
 */
 
 
-        SpindexerSlot1 = getSlotArtifact(SDC01);
-        SpindexerSlot2 = getSlotArtifact(SDC02);
-        SpindexerSlot3 = getSlotArtifact(SDC03);
 
-        telemetry.addData("Blue", SDC01.blue());
-        telemetry.addData("Red ",SDC01.red());
-        telemetry.addData("Green ",SDC01.green());
-
-
-        telemetry.addData("Blue", SDC02.blue());
-        telemetry.addData("Red ",SDC02.red());
-        telemetry.addData("Green ",SDC02.green());
-
-
-        telemetry.addData("Blue", SDC03.blue());
-        telemetry.addData("Red ",SDC03.red());
-        telemetry.addData("Green ",SDC03.green());
-
-
-        telemetry.addData("Blue", NTKC01.blue());
-        telemetry.addData("Red ",NTKC01.red());
-        telemetry.addData("Green ",NTKC01.green());
 
         /**
          * User defined init_loop method
@@ -165,10 +133,52 @@ public class Sensors extends BaseHardware {
      * This method will be called repeatedly in a loop while this op mode is running
      */
     public void loop(){
-        SpindexerSlot1 = getSlotArtifact(SDC01);
-        SpindexerSlot2 = getSlotArtifact(SDC02);
-        SpindexerSlot3 = getSlotArtifact(SDC03);
-        IntakeSlot = getSlotArtifact(NTKC01);
+
+        if(sensorTime.milliseconds() >= 1000){
+            sensorStable = true;
+        }else{
+            sensorStable = false;
+        }
+
+        getDistNTKAP2();
+        getDistNTKAP3();
+
+        if (NTKAP2distance <= targRange && sensorStable) {
+            CurrentDistance2 = Distance2.FILLED2;
+            //cmdBLUE(); // MJD: LED feedback for sensor 2 seeing object
+        } else {
+            CurrentDistance2 = Distance2.MISSING2;
+        }
+
+        if (NTKAP3distance <= targRange && sensorStable) {
+            CurrentDistance3 = Distance3.FILLED3;
+            //cmdPURPLE(); // MJD: LED feedback for sensor 3 seeing object
+        } else {
+            CurrentDistance3 = Distance3.MISSING3;
+        }
+
+        //if (CurrentMode == Intake.Mode.NTKforward) {  // MJD
+            // allow sensors to stabilize
+       // }
+
+        // STOP CONDITION
+        //if (CurrentMode == Intake.Mode.NTKforward) {
+
+                    if(CurrentDistance2 == Distance2.FILLED2 &&
+                            CurrentDistance3 == Distance3.FILLED3){
+                        bothFilled = true;
+                    }
+
+
+            // boolean rpmLoaded =
+            //         CommonLogic.inRange(getMotorRPM(NTKM01), 550, 650);   // MJD: impossible RPM range
+
+            // if (bothFilled && rpmLoaded) {   // MJD
+            //     cmdStop();
+            // }
+
+
+        //}
 
     }
 
@@ -178,8 +188,16 @@ public class Sensors extends BaseHardware {
 
 
     public void doStop(){
-        CurrentMode = Mode.STOP;
-        cmdComplete = true;
+        //CurrentMode = Mode.STOP;
+       // cmdComplete = true;
+    }
+
+    public void cmdResetSensor(){
+        sensorTime.reset();
+        sensorStable = false;
+        CurrentDistance2 = Distance2.MISSING2;
+        CurrentDistance3 = Distance3.MISSING3;
+        bothFilled = false;
     }
 
 
@@ -220,14 +238,24 @@ public TargetType getSlotArtifact(ColorSensor v3) {
 }
 
 
+    private void getDistNTKAP2() {
+        NTKAP2distance = NTKAP2.getDistance(DistanceUnit.CM);
+    }
+
+    private void getDistNTKAP3() {
+        NTKAP3distance = NTKAP3.getDistance(DistanceUnit.CM);
+    }
+
+    public enum Distance3 { FILLED3, MISSING3 }
+    public enum Distance2 { FILLED2, MISSING2 }
 
 
 
 
 
-public enum Mode{
-    STOP
-}
+
+
+//public enum Mode{ STOP }
 
 
     public enum TargetType {

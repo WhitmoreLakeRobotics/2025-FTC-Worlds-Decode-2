@@ -64,7 +64,7 @@ public class Tele_Op extends OpMode {
     private boolean EndGame3b = false;
     private boolean EndGame4b = false;
     private boolean UppiesOverrideEnabled = false;
-    private boolean SystemXActive = false;
+    //private boolean SystemXActive = false;
     private boolean systemXReady = false;
 
     private ElapsedTime runtime = new ElapsedTime();
@@ -150,19 +150,19 @@ public class Tele_Op extends OpMode {
         robot.init_loop();
 
         if(CurrentAlliance == Alliance.Red){
-            robot.lighting.cmdREDa();
+            //robot.lighting.cmdREDa();
             robot.lighting.CurrentTeam = Lighting.Team.RED;
             robot.trapezoidAutoAim.CurrentTurretColor = TrapezoidAutoAim.TurretColor.Red;
         }else if(CurrentAlliance == Alliance.Blue){
-            robot.lighting.cmdBLUEa();
+           // robot.lighting.cmdBLUEa();
             robot.lighting.CurrentTeam = Lighting.Team.BLUE;
             robot.trapezoidAutoAim.CurrentTurretColor = TrapezoidAutoAim.TurretColor.Blue;
         }else if(CurrentAlliance == Alliance.Unknown){
-            robot.lighting.cmdPURPLEa();
+            //robot.lighting.cmdPURPLEa();
             robot.lighting.CurrentTeam = Lighting.Team.UNKNOWN;
             robot.trapezoidAutoAim.CurrentTurretColor = TrapezoidAutoAim.TurretColor.Unknown;
         }else if(CurrentAlliance == Alliance.NoAuto){
-            robot.lighting.cmdYELLOWa();
+           // robot.lighting.cmdYELLOWa();
             robot.lighting.CurrentTeam = Lighting.Team.UNKNOWN;
             robot.trapezoidAutoAim.CurrentTurretColor = TrapezoidAutoAim.TurretColor.NoAuto;
         }else{
@@ -188,19 +188,19 @@ public class Tele_Op extends OpMode {
         //robot.swing_arm_and_lift.SetPOS(Swing_Arm_And_Lift.Mode.PICKUP);
 
         if(CurrentAlliance == Alliance.Red){
-            robot.lighting.cmdREDa();
+            //robot.lighting.cmdREDa();
             robot.lighting.CurrentTeam = Lighting.Team.RED;
             robot.trapezoidAutoAim.CurrentTurretColor = TrapezoidAutoAim.TurretColor.Red;
         }else if(CurrentAlliance == Alliance.Blue){
-            robot.lighting.cmdBLUEa();
+           // robot.lighting.cmdBLUEa();
             robot.lighting.CurrentTeam = Lighting.Team.BLUE;
             robot.trapezoidAutoAim.CurrentTurretColor = TrapezoidAutoAim.TurretColor.Blue;
         }else if(CurrentAlliance == Alliance.Unknown){
-            robot.lighting.cmdPURPLEa();
+           // robot.lighting.cmdPURPLEa();
             robot.lighting.CurrentTeam = Lighting.Team.UNKNOWN;
             robot.trapezoidAutoAim.CurrentTurretColor = TrapezoidAutoAim.TurretColor.Unknown;
         }else if(CurrentAlliance == Alliance.NoAuto){
-            robot.lighting.cmdYELLOWa();
+           // robot.lighting.cmdYELLOWa();
             robot.lighting.CurrentTeam = Lighting.Team.UNKNOWN;
             robot.trapezoidAutoAim.CurrentTurretColor = TrapezoidAutoAim.TurretColor.NoAuto;
         }else{
@@ -216,15 +216,10 @@ public class Tele_Op extends OpMode {
     @Override
     public void loop() {
         systemX.loop();
-        if(SystemXActive){
-            systemX.main = true;
-        }else{
-            systemX.main = false;
-        }
-
         if(systemXTolTime.milliseconds() >= 500){
             systemXReady = false;
         }
+
 
 
 
@@ -459,17 +454,17 @@ public class Tele_Op extends OpMode {
         }
 
         if (gamepad1.right_trigger > 0.8) {
-             robot.trapezoidAutoAim.PrimitiveDriver = false;
+            robot.trapezoidAutoAim.PrimitiveDriver = false;
 
         }else{
-             robot.trapezoidAutoAim.PrimitiveDriver = true;
-             robot.trapezoidAutoAim.CurrentMode = TrapezoidAutoAim.Mode.NotTrying;
+            robot.trapezoidAutoAim.PrimitiveDriver = true;
+            robot.trapezoidAutoAim.CurrentMode = TrapezoidAutoAim.Mode.NotTrying;
 
         }
 
         if (gamepad1.left_trigger <= 0.8) {
-            systemXReady = true;
             systemXTolTime.reset();
+            systemXReady = true;
 
         }
 
@@ -511,6 +506,7 @@ public class Tele_Op extends OpMode {
         if (CommonLogic.oneShot(gamepad1.dpad_up, gp1_prev_dpad_up)) {
             if(uppiesInhibitor.seconds() >= 100 || UppiesOverrideEnabled){
                 robot.uppies.cmdUp();
+                robot.lighting.cmdYELLOWl();
             }
 
         }
@@ -525,6 +521,7 @@ public class Tele_Op extends OpMode {
         if (CommonLogic.oneShot(gamepad1.dpad_down, gp1_prev_dpad_down)) {
             if(uppiesInhibitor.seconds() >= 100 || UppiesOverrideEnabled){
                 robot.uppies.cmdDown();
+                robot.lighting.cmdOFFl();
             }
 
         }
@@ -621,8 +618,8 @@ public class Tele_Op extends OpMode {
 
         if (CommonLogic.oneShot(gamepad2.dpad_down, gp2_prev_dpad_down)) {
             if(!robot.autoRPM.Measure){
-              //  robot.autoRPM.Measure = true;
-               // LaunchAutoRPM();
+                //  robot.autoRPM.Measure = true;
+                // LaunchAutoRPM();
             }else{
                 //robot.autoRPM.Measure = false;
                 //robot.launcher.cmdStop();
