@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Hardware;
 
+import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.ColorRangeSensor;
 import com.qualcomm.robotcore.hardware.ColorSensor;
@@ -25,10 +26,10 @@ public class Sensors extends BaseHardware {
     public Telemetry telemetry = null;
     //private ColorRangeSensor IntakeSensor;
     //private DistanceSensor RearLeftSensor
-
+public RevColorSensorV3 NTKAP3;
     public ColorRangeSensor NTKAP1;
     public ColorRangeSensor NTKAP2;
-    public ColorRangeSensor NTKAP3;
+   // public ColorRangeSensor NTKAP3;
     public ColorRangeSensor Plate;
     public boolean bothFilled = false;
     private boolean sensorStable = false;
@@ -71,7 +72,7 @@ public class Sensors extends BaseHardware {
     public void init(){
         //DeliverySensor = hardwareMap.get(ColorSensor.class, "DeliveryS");
 
-        NTKAP3 = hardwareMap.get(ColorRangeSensor.class, "NTKAP3");
+        NTKAP3 = hardwareMap.get(RevColorSensorV3.class, "NTKAP3");
         NTKAP2 = hardwareMap.get(ColorRangeSensor.class, "NTKAP2");
 
         sensorTime.reset();
