@@ -27,6 +27,7 @@ public class Robot extends BaseHardware {
     public AutoAim autoAim;
     public Lighting lighting;
     public TrapezoidAutoAim trapezoidAutoAim;
+    public Sensors sensors;
 
     private Follower follower;
     public static Pose startingPose; //See ExampleAuto to understand how to use this
@@ -110,6 +111,11 @@ public class Robot extends BaseHardware {
         lighting.telemetry = this.telemetry;
         lighting.init();
 
+        sensors = new Sensors();
+        sensors.hardwareMap = this.hardwareMap;
+        sensors.telemetry = this.telemetry;
+        sensors.init();
+
         autoAim = new AutoAim(limey, turret, driveTrain);
 
         trapezoidAutoAim = new TrapezoidAutoAim();
@@ -123,6 +129,7 @@ public class Robot extends BaseHardware {
         driveTrain.init_loop();
         //lighting.init_loop();
         // sensors.init_loop();
+        sensors.init_loop();
         intake.init_loop();
         launcher.init_loop();
         launcherBlocker.init_loop();
@@ -140,6 +147,7 @@ public class Robot extends BaseHardware {
         driveTrain.start();
         // lighting.start();
         // sensors.start();
+        sensors.start();
         intake.start();
         launcher.start();
         launcherBlocker.start();
@@ -158,7 +166,7 @@ public class Robot extends BaseHardware {
     public void loop() {
         driveTrain.loop();
         //. lighting.loop();
-        // sensors.loop();
+        sensors.loop();
         intake.loop();
         launcher.loop();
         launcherBlocker.loop();
@@ -180,7 +188,7 @@ public class Robot extends BaseHardware {
     public void autonLoop() {
         //driveTrain.loop();
         //. lighting.loop();
-        // sensors.loop();
+        sensors.loop();
         intake.loop();
         launcher.loop();
         launcherBlocker.loop();
@@ -194,7 +202,7 @@ public class Robot extends BaseHardware {
     public void stop() {
         driveTrain.stop();
         // lighting.stop();
-        // sensors.stop();
+        sensors.stop();
         intake.stop();
         launcher.stop();
         launcherBlocker.stop();

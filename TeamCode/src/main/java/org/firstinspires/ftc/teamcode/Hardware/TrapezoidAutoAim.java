@@ -200,12 +200,13 @@ public class TrapezoidAutoAim {
 
             }
 
-            if(limey.getTagDistance() > 5){
-                driveTrain.cmdDriveBySensors(1,driveTrain.getCurrentHeading(),0.35,driveTrain.getCurrentHeading());
+            if(limey.getTagDistance() > 3 && limey.getTagDistance() < 5){
+                driveTrain.cmdDriveBySensors(6,driveTrain.getCurrentHeading(),0.35,driveTrain.getCurrentHeading());
+            }else if(limey.getTagDistance() > 5 && limey.getTagDistance() > 3){
+                driveTrain.cmdDriveBySensors(12,driveTrain.getCurrentHeading(),0.60,driveTrain.getCurrentHeading());
             }else{
 
             }
-
         }
     }
 
