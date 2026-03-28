@@ -48,7 +48,7 @@ public class pp6CycleBlueFar extends OpMode {
 
     private PathChain scorePreload;
     private PathChain grabPickup1, grabPickup1a, grabPickup1b, grabPickup1c, scorePickup1, grabPickup2a, grabPickup2b, scorePickup2, goEndPose, goEndPose2, endPath;
-    private PathChain cyclePickup1,spikeB2 ;
+    private PathChain cyclePickup1,spikeB2, interruptedPickup ;
 
 
     public void buildPaths() {
@@ -368,5 +368,12 @@ public class pp6CycleBlueFar extends OpMode {
         Drawing.drawDebug(follower);
     }
 
+    private  void newPath(){
+        interruptedPickup = follower.pathBuilder()
+                .addPath (new BezierLine(follower.getPose(), scorePose))
+                .setLinearHeadingInterpolation(startPose.getHeading(), scorePose.getHeading())
+                .build();
+        follower.followPath(interruptedPickup,true);
 
+    }
 }

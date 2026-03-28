@@ -14,7 +14,6 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.Hardware.Intake;
 import org.firstinspires.ftc.teamcode.Hardware.Lighting;
 import org.firstinspires.ftc.teamcode.Hardware.Robot;
 
@@ -159,21 +158,30 @@ updateTelemetry();
                     follower.followPath(cyclePickup1, true);
                     //if we have 3 artifacts stop the path and go to next stage
                     runtime.reset();
-                    currentStage = stage._46_RunningCheck;
+                    currentStage = stage._46_fullLoadCheck;
                 }
 
                     telemetryMU.addData("Corner pickup", follower.getPose());
                 }
                     break;
 
-            case _46_RunningCheck:
-                if (robot.lighting.CurrentColorI == Lighting.ColorIntake.RED || !follower.isBusy()) {
-                    follower.breakFollowing();
-                    newPath();
-                    currentStage = stage._50_Launch1;
-                    runtime.reset();
+            case _46_fullLoadCheck:
+                if (follower.isBusy()) { //we are still running path
+                    if (robot.lighting.CurrentColorI == Lighting.ColorIntake.RED ) {
+                       // we've got 3 artifacts, stop the path and return to scorePose
+                        follower.breakFollowing();
+                        newPath();
+                        robot.autoRPM.Measure = true; // start fly wheels
+                        currentStage = stage._50_Launch1;
+                        runtime.reset();
 
+                    } else if (follower.getCurrentTValue() > 0.75) { //the path is almost done
+                        robot.autoRPM.Measure = true; //start fly wheels
+                    }
+                } else {// path is complete we are back at scorePose move to launch
+                    currentStage = stage._50_Launch1;
                 }
+                
 
 
             case _50_Launch1:
@@ -213,7 +221,7 @@ stop();
             _20_prelaunch,
             _30_Launch2,
             _40_RunningCornerPickup,
-            _46_RunningCheck,
+            _46_fullLoadCheck,
             _50_Launch1,
             _100_end;
 
@@ -273,6 +281,7 @@ stop();
                     follower.followPath(interruptedPickup,true);
 
         }
+
 
 
 }
