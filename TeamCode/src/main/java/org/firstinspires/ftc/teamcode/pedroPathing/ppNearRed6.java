@@ -17,7 +17,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.Hardware.Robot;
 
 //Verity + Rory
-@Autonomous(name = "ppAutonbase", group = "PP")
+@Autonomous(name = "ppNearRed6", group = "PP")
 public class ppNearRed6 extends OpMode {
 
     Robot robot = new Robot();

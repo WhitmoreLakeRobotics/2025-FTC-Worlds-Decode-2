@@ -41,8 +41,8 @@ public class ppAutonTesting extends OpMode {
     public static Pose scorePose = new Pose(15, 15, Math.toRadians(114)); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
     //private final Pose scorePose = new Pose(wallScoreX, wallScoreY, wallScoreH); // seeing if configurables work for this. Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
     public static Pose scorePoseAP = new Pose(20, 20, Math.toRadians(10));
-    public static Pose pickup1aPose = new Pose(25, 25, Math.toRadians(180)); // Highest (First Set) of Artifacts from the Spike Mark.
-    public static Pose pickup1bPose = new Pose(20, 20, Math.toRadians(190)); // (First Set) of Artifacts picked up.
+    public static Pose pickup1aPose = new Pose(45, 35, Math.toRadians(180)); // Highest (First Set) of Artifacts from the Spike Mark.
+    public static Pose pickup1bPose = new Pose(10, 35, Math.toRadians(180)); // (First Set) of Artifacts picked up.
     public static Pose pickup1bPoseC = new Pose(1, 27, Math.toRadians(200));
     public static Pose pickup1cPose = new Pose(4, 13.5, Math.toRadians(180));
 
@@ -57,15 +57,15 @@ public class ppAutonTesting extends OpMode {
                 .setLinearHeadingInterpolation(scorePose.getHeading(), pickup1aPose.getHeading())
 
                 .addPath(new BezierLine(pickup1aPose, pickup1bPose))
-                .setLinearHeadingInterpolation(pickup1aPose.getHeading(), pickup1bPose.getHeading())
+                .setConstantHeadingInterpolation(pickup1bPose.getHeading())
 
                 .addPath(new BezierCurve(pickup1bPose, scorePoseAP))
-                .setLinearHeadingInterpolation(pickup1bPose.getHeading(), scorePose.getHeading())
+                .setConstantHeadingInterpolation(pickup1bPose.getHeading())
                 .build();
 
         scorePreload = follower.pathBuilder()
                 .addPath (new BezierLine(startPose, scorePose))
-                .setLinearHeadingInterpolation(startPose.getHeading(), scorePose.getHeading())
+                .setConstantHeadingInterpolation(pickup1bPose.getHeading())
                 .build();
 
     }
