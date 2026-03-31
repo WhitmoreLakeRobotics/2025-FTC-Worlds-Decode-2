@@ -302,10 +302,10 @@ public class ppTeleop extends OpMode {
         }
 
         if (CommonLogic.oneShot(gamepad2.right_bumper, gp2_prev_right_bumper)) {
-            robot.bCkSenors = false;
+
 
         }
-        if (gamepad2.right_bumper) {
+        if (gamepad2.right_bumper == true) {
             LaunchNear();
         }
 
@@ -390,8 +390,8 @@ public class ppTeleop extends OpMode {
             robot.bCkSenors = false;
         }
 
-        if ((gamepad2.right_trigger <= 0.79) && (gamepad2.right_trigger > 0.10)){
-        }
+        //if ((gamepad2.right_trigger <= 0.79) && (gamepad2.right_trigger > 0.10)){
+        //}
 
         if (gamepad2.left_trigger > 0.7) { //0.8
             robot.launcherBlocker.cmdUnBlock();
