@@ -7,6 +7,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class Intake extends BaseHardware {
 
+    private boolean IntakeFull = false;
     public Telemetry telemetry = null;
     public HardwareMap hardwareMap = null;
     private Lighting lighting;
@@ -34,6 +35,7 @@ public class Intake extends BaseHardware {
         NTKM01.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
         NTKM01.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
         NTKM01.setPower(0);
+
 
         CurrentMode = Mode.NTKstop;
     }
@@ -65,8 +67,8 @@ public class Intake extends BaseHardware {
     public void cmdBackward() {
         CurrentMode = Mode.NTKbackward;
         NTKM01.setPower(outSpeed);
-        lighting.cmdGREENi();
-        sensors.cmdResetSensor();
+     //   lighting.cmdGREENi();
+     //   sensors.cmdResetSensor();
         //loopTime.reset();
     }
 
@@ -76,14 +78,14 @@ public class Intake extends BaseHardware {
         //sensorTime.reset();
         //loopTime.reset();
          // MJD: LED feedback for intake running
-        sensors.cmdResetSensor();
-        lighting.cmdGREENi();
+      //  sensors.cmdResetSensor();
+      //  lighting.cmdGREENi();
     }
 
     public void cmdStop() {
         CurrentMode = Mode.NTKstop;
         NTKM01.setPower(stopSpeed);
-        lighting.cmdREDi(); // MJD: LED feedback for intake stopped
+    //    lighting.cmdREDi(); // MJD: LED feedback for intake stopped
         //loopTime.reset();
     }
 
@@ -98,5 +100,9 @@ public class Intake extends BaseHardware {
         double ticksPerRevolution = 28;
         double ticksPerSecond = motor.getVelocity();
         return (ticksPerSecond / ticksPerRevolution) * 60;
+    }
+
+    public void setIntakeFull(boolean bStatus){
+        IntakeFull = bStatus;
     }
 }

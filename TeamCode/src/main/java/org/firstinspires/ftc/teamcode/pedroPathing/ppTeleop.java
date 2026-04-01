@@ -330,11 +330,14 @@ public class ppTeleop extends OpMode {
             robot.intake.cmdFoward();
             robot.bCkSenors = true;
             robot.transitionRoller.cmdSpin();
+            robot.sensors.cmdResetSensor();
+            robot.lighting.cmdGREENi();
         }
 
         if (CommonLogic.oneShot(gamepad2.b, gp2_prev_b)) {
             robot.intake.cmdStop();
             robot.transitionRoller.cmdStop();
+            robot.lighting.cmdREDi();
         }
 
         if (CommonLogic.oneShot(gamepad2.y, gp2_prev_y)) {
@@ -346,9 +349,12 @@ public class ppTeleop extends OpMode {
             if (!robot.intake.AtIntakeStop) {
                 robot.intake.cmdStop();
                 robot.intake.AtIntakeStop = true;
+                robot.lighting.cmdREDi();
             } else {
                 robot.intake.cmdBackward();
                 robot.intake.AtIntakeStop = false;
+                robot.lighting.cmdGREENi();
+                robot.sensors.cmdResetSensor();
             }
 
 

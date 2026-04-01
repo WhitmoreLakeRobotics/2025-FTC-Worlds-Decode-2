@@ -39,9 +39,11 @@ public RevColorSensorV3 NTKAP3;
     private int SensorRed;
     private int SensorGreen;
 
+    private boolean bNTKAP1detect = false;
     public Distance2 CurrentDistance2 = Distance2.MISSING2;
     public Distance3 CurrentDistance3 = Distance3.MISSING3;
 
+    private double NTKAP1distance = 999;
     private double NTKAP2distance = 999;
     private double NTKAP3distance = 999;
 
@@ -74,7 +76,7 @@ public RevColorSensorV3 NTKAP3;
 
         NTKAP3 = hardwareMap.get(RevColorSensorV3.class, "NTKAP3");
         NTKAP2 = hardwareMap.get(ColorRangeSensor.class, "NTKAP2");
-
+        NTKAP1 = hardwareMap.get(RevColorSensorV3.class, "NTKAP1");
         sensorTime.reset();
 
     }
@@ -140,9 +142,16 @@ public RevColorSensorV3 NTKAP3;
         }else{
             sensorStable = false;
         }
-
+        getDistNTKAP1();
         getDistNTKAP2();
         getDistNTKAP3();
+
+        if (NTKAP1distance <= targRange && sensorStable) {
+        bNTKAP1detect = true;
+        } else {
+            bNTKAP1detect = false;
+        }
+
 
         if (NTKAP2distance <= targRange && sensorStable) {
             CurrentDistance2 = Distance2.FILLED2;
@@ -166,7 +175,8 @@ public RevColorSensorV3 NTKAP3;
         //if (CurrentMode == Intake.Mode.NTKforward) {
 
                     if(CurrentDistance2 == Distance2.FILLED2 &&
-                            CurrentDistance3 == Distance3.FILLED3){
+                            CurrentDistance3 == Distance3.FILLED3 &&
+                        bNTKAP1detect){
                         bothFilled = true;
                     }
 
@@ -180,6 +190,11 @@ public RevColorSensorV3 NTKAP3;
 
 
         //}
+
+    }
+
+    public boolean getBothFilled(){
+        return bothFilled;
 
     }
 
@@ -237,7 +252,9 @@ public TargetType getSlotArtifact(ColorSensor v3) {
     }
 
 }
-
+    private void getDistNTKAP1() {
+        NTKAP1distance = NTKAP1.getDistance(DistanceUnit.CM);
+    }
 
     private void getDistNTKAP2() {
         NTKAP2distance = NTKAP2.getDistance(DistanceUnit.CM);

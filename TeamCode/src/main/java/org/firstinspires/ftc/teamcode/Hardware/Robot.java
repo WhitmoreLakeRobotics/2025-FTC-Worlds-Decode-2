@@ -164,7 +164,7 @@ public class Robot extends BaseHardware {
 
     @Override
     public void loop() {
-        driveTrain.loop();
+      //  driveTrain.loop();
         //. lighting.loop();
         sensors.loop();
         intake.loop();
@@ -177,6 +177,10 @@ public class Robot extends BaseHardware {
         turret.loop();
         trapezoidAutoAim.loop();
         lighting.loop();
+
+
+        intake.setIntakeFull( sensors.getBothFilled());
+
 
         if (transitionRoller.CurrentMode == TransitionRoller.Mode.Stop
                 && intake.CurrentMode == Intake.Mode.NTKforward) {
@@ -196,6 +200,10 @@ public class Robot extends BaseHardware {
         limey.loop();
         uppies.loop();
         lighting.loop();
+
+
+        intake.setIntakeFull( sensors.getBothFilled());
+
     }
 
     @Override
