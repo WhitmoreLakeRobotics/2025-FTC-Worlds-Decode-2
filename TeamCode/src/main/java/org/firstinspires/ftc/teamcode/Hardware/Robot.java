@@ -184,7 +184,22 @@ public class Robot extends BaseHardware {
 
         if (transitionRoller.CurrentMode == TransitionRoller.Mode.Stop
                 && intake.CurrentMode == Intake.Mode.NTKforward) {
-                lighting.cmdBLUEi();
+                lighting.cmdPURPLEi();
+        }
+
+        if (transitionRoller.CurrentMode == TransitionRoller.Mode.Stop
+                && intake.CurrentMode == Intake.Mode.NTKstop) {
+            lighting.cmdORANGEi();
+        }
+
+        if (transitionRoller.CurrentMode == TransitionRoller.Mode.Back
+                && intake.CurrentMode == Intake.Mode.NTKbackward) {
+            lighting.cmdOFFi();
+        }
+
+        if (transitionRoller.CurrentMode == TransitionRoller.Mode.Spin
+                && intake.CurrentMode == Intake.Mode.NTKforward) {
+            lighting.cmdGREENi();
         }
 
     }

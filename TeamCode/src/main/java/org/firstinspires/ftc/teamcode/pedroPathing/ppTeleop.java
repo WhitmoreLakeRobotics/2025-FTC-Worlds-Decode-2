@@ -69,6 +69,8 @@ public class ppTeleop extends OpMode {
     private boolean gp2_prev_start = false;
     private int tHeading = 0;
     private boolean bAutoTurn = false;
+    private double NormalSpeed = 1.0;
+    private double SnailSpeed = 0.35;
     //private boolean EndGame = false;
     //private boolean EndGame2 = false;
     //private boolean EndGame3 = false;
@@ -177,35 +179,58 @@ public class ppTeleop extends OpMode {
         //***********   Gamepad 1 controls ********
         if (bAutoTurn) {
             if (gamepad1.right_bumper) {
-                robot.driveTrain.cmdTeleOp(CommonLogic.joyStickMath(gamepad1.left_stick_y * -1),
+                /*robot.driveTrain.cmdTeleOp(CommonLogic.joyStickMath(gamepad1.left_stick_y * -1),
                         CommonLogic.joyStickMath(gamepad1.left_stick_x),
                         robot.driveTrain.autoTurn(tHeading), robot.driveTrain.DTrain_FASTSPEED);
+
+                 */
+
+              //  follower.turnTo(tHeading);
+                follower.turnToDegrees(tHeading);
+
             } else if (gamepad1.left_bumper) {
-                robot.driveTrain.cmdTeleOp(CommonLogic.joyStickMath(gamepad1.left_stick_y * -1),
+               /* robot.driveTrain.cmdTeleOp(CommonLogic.joyStickMath(gamepad1.left_stick_y * -1),
                         CommonLogic.joyStickMath(gamepad1.left_stick_x),
                         robot.driveTrain.autoTurn(tHeading), robot.driveTrain.DTrain_SLOWSPEED);
 
+                */
+                follower.turnToDegrees(tHeading);
+                follower.setMaxPower(SnailSpeed);
             } else {
 
-                robot.driveTrain.cmdTeleOp(CommonLogic.joyStickMath(gamepad1.left_stick_y * -1),
+               /* robot.driveTrain.cmdTeleOp(CommonLogic.joyStickMath(gamepad1.left_stick_y * -1),
                         CommonLogic.joyStickMath(gamepad1.left_stick_x),
                         robot.driveTrain.autoTurn(tHeading), robot.driveTrain.DTrain_NORMALSPEED);
+
+                */
+                follower.turnToDegrees(tHeading);
+                follower.setMaxPower(NormalSpeed);
             }
         } else {
             if (gamepad1.right_bumper) {
-                robot.driveTrain.cmdTeleOp(CommonLogic.joyStickMath(gamepad1.left_stick_y * -1),
+               /* robot.driveTrain.cmdTeleOp(CommonLogic.joyStickMath(gamepad1.left_stick_y * -1),
                         CommonLogic.joyStickMath(gamepad1.left_stick_x),
                         CommonLogic.joyStickMath(gamepad1.right_stick_x), robot.driveTrain.DTrain_FASTSPEED);
+
+                */
+                follower.setMaxPower(NormalSpeed);
             } else if (gamepad1.left_bumper) {
-                robot.driveTrain.cmdTeleOp(CommonLogic.joyStickMath(gamepad1.left_stick_y * -1),
+                /*robot.driveTrain.cmdTeleOp(CommonLogic.joyStickMath(gamepad1.left_stick_y * -1),
                         CommonLogic.joyStickMath(gamepad1.left_stick_x),
                         CommonLogic.joyStickMath(gamepad1.right_stick_x), robot.driveTrain.DTrain_SLOWSPEED);
 
+                 */
+
+                follower.setMaxPower(SnailSpeed);
+
             } else {
 
-                robot.driveTrain.cmdTeleOp(CommonLogic.joyStickMath(gamepad1.left_stick_y * -1),
+                /*robot.driveTrain.cmdTeleOp(CommonLogic.joyStickMath(gamepad1.left_stick_y * -1),
                         CommonLogic.joyStickMath(gamepad1.left_stick_x),
                         CommonLogic.joyStickMath(gamepad1.right_stick_x), robot.driveTrain.DTrain_NORMALSPEED);
+
+                 */
+                follower.setMaxPower(NormalSpeed);
             }
 
         }
@@ -213,6 +238,13 @@ public class ppTeleop extends OpMode {
         if (Math.abs(gamepad1.right_stick_y) > Settings.JOYSTICK_DEADBAND_STICK) {
 
         }
+        follower.setTeleOpDrive(
+                gamepad1.left_stick_y,
+                gamepad1.left_stick_x,
+                gamepad1.right_stick_x,
+                false
+
+        );
         //***********   Pushers
         //if (CommonLogic.oneShot(gamepad1.a, gp1_prev_a)) {
         if (gamepad1.a) {
@@ -337,7 +369,7 @@ public class ppTeleop extends OpMode {
         if (CommonLogic.oneShot(gamepad2.b, gp2_prev_b)) {
             robot.intake.cmdStop();
             robot.transitionRoller.cmdStop();
-            robot.lighting.cmdREDi();
+            robot.lighting.cmdORANGEi();
         }
 
         if (CommonLogic.oneShot(gamepad2.y, gp2_prev_y)) {
@@ -349,11 +381,11 @@ public class ppTeleop extends OpMode {
             if (!robot.intake.AtIntakeStop) {
                 robot.intake.cmdStop();
                 robot.intake.AtIntakeStop = true;
-                robot.lighting.cmdREDi();
+                robot.lighting.cmdORANGEi();
             } else {
                 robot.intake.cmdBackward();
                 robot.intake.AtIntakeStop = false;
-                robot.lighting.cmdGREENi();
+                robot.lighting.cmdOFFi();
                 robot.sensors.cmdResetSensor();
             }
 
