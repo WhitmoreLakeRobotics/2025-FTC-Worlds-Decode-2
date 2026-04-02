@@ -7,7 +7,6 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.internal.system.Deadline;
-import org.firstinspires.ftc.teamcode.Tele_Op;
 
 /**
  * Base class for FTC Team 8492 defined hardware
@@ -32,10 +31,9 @@ public class Lighting extends BaseHardware {
     private Servo LiftOffLight;
 
     private final static int GAMEPAD_LOCKOUT = 500;
-
-    public ColorAlliance CurrentColorA = ColorAlliance.OFF;
+    //public ColorAlliance CurrentColorA = ColorAlliance.OFF;
     public ColorIntake CurrentColorI = ColorIntake.OFF;
-    public ColorLiftOff CurrentColorL = ColorLiftOff.OFF;
+  //  public ColorLiftOff CurrentColorL = ColorLiftOff.OFF;
     public Team CurrentTeam = Team.UNKNOWN;
 
     public static final double Green = 0.5;
@@ -88,16 +86,16 @@ public class Lighting extends BaseHardware {
      * This method will be called once when the INIT button is pressed.
      */
     public void init(){
-        blinkinLedDriver = hardwareMap.get(RevBlinkinLedDriver.class, "LEDC");
+      /*  blinkinLedDriver = hardwareMap.get(RevBlinkinLedDriver.class, "LEDC");
         pattern = RevBlinkinLedDriver.BlinkinPattern.WHITE;
         blinkinLedDriver.setPattern(pattern);
-
+*/
         //display = telemetry.addData("Display Kind: ", displayKind.toString());
         patternName = telemetry.addData("Pattern: ", pattern.toString());
 
-        AllianceState = hardwareMap.get(Servo.class, "AllianceState");
+       // AllianceState = hardwareMap.get(Servo.class, "AllianceState");
         IntakeState = hardwareMap.get(Servo.class, "IntakeState");
-        LiftOffLight = hardwareMap.get(Servo.class,"LiftOffLight");
+       // LiftOffLight = hardwareMap.get(Servo.class,"LiftOffLight");
 
 
         initLightTime.reset();
@@ -106,11 +104,11 @@ public class Lighting extends BaseHardware {
         initLight2 = false;
 
         CurrentColorI = ColorIntake.OFF;
-        CurrentColorA = ColorAlliance.OFF;
-        CurrentColorL = ColorLiftOff.OFF;
+      //  CurrentColorA = ColorAlliance.OFF;
+      //  CurrentColorL = ColorLiftOff.OFF;
         cmdOFFi();
-        cmdOFFa();
-        cmdOFFl();
+       // cmdOFFa();
+      //  cmdOFFl();
 
 
     }
@@ -125,11 +123,11 @@ public class Lighting extends BaseHardware {
 
         if (initLight1 && initLightTime.milliseconds() >= 750) {
             if(CurrentTeam == Team.RED){
-                cmdREDa();
+       //         cmdREDa();
             }else if(CurrentTeam == Team.BLUE){
-                cmdBLUEa();
+        //        cmdBLUEa();
             }else{
-                cmdWHITEa();
+       //         cmdWHITEa();
             }
             initLight1 = false;
             initLight2 = true;
@@ -137,7 +135,7 @@ public class Lighting extends BaseHardware {
         }
 
         if (initLight2 && initLightTime.milliseconds() >= 750) {
-            cmdOFFa();
+           // cmdOFFa();
             initLight2 = false;
             initLight1 = true;
             initLightTime.reset();
@@ -165,7 +163,7 @@ public class Lighting extends BaseHardware {
      * This method will be called repeatedly in a loop while this op mode is running
      */
     public void loop(){
-        ReturnToBaseColor();
+        //ReturnToBaseColor();
     }
 
     /**
@@ -179,7 +177,7 @@ public class Lighting extends BaseHardware {
 
     }
 
-    public void UpdateBaseColor (RevBlinkinLedDriver.BlinkinPattern newColor){
+  /*  public void UpdateBaseColor (RevBlinkinLedDriver.BlinkinPattern newColor){
         // pattern = RevBlinkinLedDriver.BlinkinPattern.RED;
         baseColor = newColor;
         blinkinLedDriver.setPattern(baseColor);
@@ -195,7 +193,9 @@ public class Lighting extends BaseHardware {
         }
 
     }
+    */
 
+/* not in use
     public void cmdREDa()    { AllianceState.setPosition(Red);    CurrentColorA = ColorAlliance.RED; }
     public void cmdGREENa()  { AllianceState.setPosition(Green);  CurrentColorA = ColorAlliance.GREEN; }
     public void cmdYELLOWa() { AllianceState.setPosition(Yellow); CurrentColorA = ColorAlliance.YELLOW; }
@@ -204,7 +204,7 @@ public class Lighting extends BaseHardware {
     public void cmdORANGEa() { AllianceState.setPosition(Orange); CurrentColorA = ColorAlliance.ORANGE; }
     public void cmdWHITEa()  { AllianceState.setPosition(White);  CurrentColorA = ColorAlliance.WHITE; }
     public void cmdOFFa()    { AllianceState.setPosition(Off);    CurrentColorA = ColorAlliance.OFF; }
-
+*/
     public void cmdREDi()    { IntakeState.setPosition(Red);      CurrentColorI = ColorIntake.RED; }
     public void cmdGREENi()  { IntakeState.setPosition(Green);    CurrentColorI = ColorIntake.GREEN; }
     public void cmdYELLOWi() { IntakeState.setPosition(Yellow);   CurrentColorI = ColorIntake.YELLOW; }
@@ -213,7 +213,7 @@ public class Lighting extends BaseHardware {
     public void cmdORANGEi() { IntakeState.setPosition(Orange);   CurrentColorI = ColorIntake.ORANGE; }
     public void cmdWHITEi()  { IntakeState.setPosition(White);    CurrentColorI = ColorIntake.WHITE; }
     public void cmdOFFi()    { IntakeState.setPosition(Off);      CurrentColorI = ColorIntake.OFF; }
-
+/*
     public void cmdREDl()    { LiftOffLight.setPosition(Red);     CurrentColorL = ColorLiftOff.RED; }
     public void cmdGREENl()  { LiftOffLight.setPosition(Green);   CurrentColorL = ColorLiftOff.GREEN; }
     public void cmdYELLOWl() { LiftOffLight.setPosition(Yellow);  CurrentColorL = ColorLiftOff.YELLOW; }
@@ -224,10 +224,10 @@ public class Lighting extends BaseHardware {
     public void cmdOFFl()    { LiftOffLight.setPosition(Off);     CurrentColorL = ColorLiftOff.OFF; }
 
     public enum ColorAlliance { GREEN, RED, YELLOW, PURPLE, BLUE, ORANGE, WHITE, OFF }
-
+*/
     public enum ColorIntake { GREEN, RED, YELLOW, PURPLE, BLUE, ORANGE, WHITE, OFF }
 
-    public enum ColorLiftOff{ GREEN, RED, YELLOW, PURPLE, BLUE, ORANGE, WHITE, OFF }
+  //  public enum ColorLiftOff{ GREEN, RED, YELLOW, PURPLE, BLUE, ORANGE, WHITE, OFF }
 
     public enum Team { RED, BLUE, UNKNOWN}
 

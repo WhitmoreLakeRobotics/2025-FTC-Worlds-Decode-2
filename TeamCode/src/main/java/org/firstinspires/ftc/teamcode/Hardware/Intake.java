@@ -50,9 +50,7 @@ public class Intake extends BaseHardware {
 
     public void loop() {
 
-        if(sensors.bothFilled && !launcherBlocker.AtUnBlocked){
-            cmdStop();
-        }
+
 
     }
 

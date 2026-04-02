@@ -10,16 +10,14 @@ import org.firstinspires.ftc.teamcode.Common.CommonLogic;
 import org.firstinspires.ftc.teamcode.Common.Settings;
 
 import org.firstinspires.ftc.teamcode.Hardware.AutoRPM;
-import org.firstinspires.ftc.teamcode.Hardware.DriveTrain;
 import org.firstinspires.ftc.teamcode.Hardware.Lighting;
 import org.firstinspires.ftc.teamcode.Hardware.Robot;
-import org.firstinspires.ftc.teamcode.Hardware.AutoAim;
 import org.firstinspires.ftc.teamcode.Hardware.TrapezoidAutoAim;
 import org.firstinspires.ftc.teamcode.pedroPathing.SystemX;
 
 @com.qualcomm.robotcore.eventloop.opmode.TeleOp(name = "Tele_Op", group = "TeleOp")
 //@Disabled
-public class Tele_Op extends OpMode {
+public class Tele_Op_old extends OpMode {
     private static final String TAGTeleop = "8492-Teleop";
     //RobotTest robot = new RobotTest();
     Robot robot = new Robot();
@@ -506,7 +504,7 @@ public class Tele_Op extends OpMode {
         if (CommonLogic.oneShot(gamepad1.dpad_up, gp1_prev_dpad_up)) {
             if(uppiesInhibitor.seconds() >= 100 || UppiesOverrideEnabled){
                 robot.uppies.cmdUp();
-                robot.lighting.cmdYELLOWl();
+             //   robot.lighting.cmdYELLOWl();
             }
 
         }
@@ -521,7 +519,7 @@ public class Tele_Op extends OpMode {
         if (CommonLogic.oneShot(gamepad1.dpad_down, gp1_prev_dpad_down)) {
             if(uppiesInhibitor.seconds() >= 100 || UppiesOverrideEnabled){
                 robot.uppies.cmdDown();
-                robot.lighting.cmdOFFl();
+              //  robot.lighting.cmdOFFl();
             }
 
         }
