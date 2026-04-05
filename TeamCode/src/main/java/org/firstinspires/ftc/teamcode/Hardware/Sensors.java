@@ -48,7 +48,7 @@ public RevColorSensorV3 NTKAP3;
     private double NTKAP3distance = 999;
 
     private ElapsedTime sensorTime = new ElapsedTime();
-    private final double targRange = 6;
+    private final double targRange = 9; // naj changed from 6 because I found the lower sensor often goes though a hole and registered the back end
 
     /**
      * Hardware Mappings

@@ -37,12 +37,19 @@ public class ppAutonTesting extends OpMode {
     public static Follower follower;
     public Pose currentPose = new Pose(0,0,0); //(follower.getPose().getX(), follower.getPose().getY(), Math.toRadians(follower.getPose().getHeading()));
 
-    public static Pose startPose = new Pose(48, 8, Math.toRadians(90)); // Start Pose of our robot.
+    /*public static Pose startPose = new Pose(48, 8, Math.toRadians(90)); // Start Pose of our robot.
     public static Pose scorePose = new Pose(48, 15, Math.toRadians(114)); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
     //private final Pose scorePose = new Pose(wallScoreX, wallScoreY, wallScoreH); // seeing if configurables work for this. Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
     public static Pose scorePoseAP = new Pose(55, 20, Math.toRadians(114));
     public static Pose pickup1aPose = new Pose(35, 13, Math.toRadians(180)); // Highest (First Set) of Artifacts from the Spike Mark.
-    public static Pose pickup1bPose = new Pose(8, 8, Math.toRadians(180)); // (First Set) of Artifacts picked up.
+    public static Pose pickup1bPose = new Pose(8, 8, Math.toRadians(180)); // (First Set) of Artifacts picked up.*/
+    //Red Far
+    public static Pose startPose = new Pose(86, 8, Math.toRadians(90)); // Start Pose of our robot.
+    public static Pose scorePose = new Pose(90, 13, Math.toRadians(76)); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
+    //private final Pose scorePose = new Pose(wallScoreX, wallScoreY, wallScoreH); // seeing if configurables work for this. Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
+    public static Pose scorePoseAP = new Pose(86, 20, Math.toRadians(76));
+    public static Pose pickup1aPose = new Pose(100, 13, Math.toRadians(0)); // Highest (First Set) of Artifacts from the Spike Mark.
+    public static Pose pickup1bPose = new Pose(130, 9, Math.toRadians(0)); // (First Set) of Artifacts picked up.
     public static Pose pickup1bPoseC = new Pose(1, 27, Math.toRadians(200));
     public static Pose pickup1cPose = new Pose(4, 13.5, Math.toRadians(180));
     public static Pose targetPose= new Pose(0,0,0);
@@ -60,13 +67,13 @@ public class ppAutonTesting extends OpMode {
                 .addPath(new BezierLine(pickup1aPose, pickup1bPose))
                 .setConstantHeadingInterpolation(pickup1bPose.getHeading())
 
-                .addPath(new BezierCurve(pickup1bPose, scorePoseAP))
+                .addPath(new BezierLine(pickup1bPose, scorePoseAP))
                 .setLinearHeadingInterpolation(pickup1bPose.getHeading(),scorePose.getHeading())
                 .build();
 
         scorePreload = follower.pathBuilder()
                 .addPath (new BezierLine(startPose, scorePose))
-                //.setConstantHeadingInterpolation(pickup1bPose.getHeading())
+                .setLinearHeadingInterpolation(startPose.getHeading(),scorePose.getHeading())
                 .build();
 
     }
@@ -87,6 +94,7 @@ public class ppAutonTesting extends OpMode {
 
 // disp[lay starting postition
         telemetryMU.addData("initialized postition - Update ", thisUpdate);
+        telemetryMU.addData("startingPose", startPose);
 // Feedback to Driver Hub for debugging
         updateTelemetry();
 
@@ -129,6 +137,7 @@ updateTelemetry();
 
             case _20_prelaunch:
                 if(!follower.isBusy()){
+                    //follower.followPath(scorePreload, true);
                     follower.followPath(scorePreload, true);
                     robot.launcher.cmdOutfar();
                    // robot.autoRPM.Measure = true;
@@ -150,54 +159,61 @@ updateTelemetry();
 
             case _40_RunningCornerPickup:
                 if (runtime.milliseconds() > 500) {
+                    telemetryMU.addLine("launch done");
                     robot.launcherBlocker.cmdBlock();
-                    robot.autoRPM.Measure = false;
+                   // robot.autoRPM.Measure = false;
                     robot.launcher.cmdStop();
-
+                }
 
                 if (!follower.isBusy()) {
-                    follower.followPath(cyclePickup1, true);
-                    //if we have 3 artifacts stop the path and go to next stage
+                  //  follower.followPath(cyclePickup1, true);
+                    follower.followPath(cyclePickup1,true);
+telemetryMU.addData("start cyclepath", follower.getCurrentPathChain());
                     runtime.reset();
                     currentStage = stage._46_fullLoadCheck;
+                   // currentStage = stage._50_Launch1;
                 }
 
                     telemetryMU.addData("Corner pickup", follower.getPose());
                 telemetryMU.addData("pathpose1", pickup1aPose);
-                }
+
                     break;
 
             case _46_fullLoadCheck:
                 telemetryMU.addData("pathPose2", pickup1bPose);
                 telemetryMU.addData("scorePose", scorePoseAP);
                 if (follower.isBusy()) { //we are still running path
-                    telemetryMU.addLine("check intake status");
-                    if (robot.intake.AtIntakeStop) {
+//telemetryMU.addData("check intake status", robot.intake.AtIntakeStop); intake.AtIntakeStop is never set to false
+                    if (robot.sensors.bothFilled) {
+                        telemetryMU.addLine("Intake stopped - break follower");
                        // we've got 3 artifacts, stop the path and return to scorePose
                         follower.breakFollowing();
                         newPath();
-                        robot.autoRPM.Measure = true; // start fly wheels
+                     //   robot.autoRPM.Measure = true; // start fly wheels
+                        robot.launcher.cmdOutfar();
                         currentStage = stage._50_Launch1;
                         runtime.reset();
 
                     } else if (follower.getCurrentTValue() > 0.75) { //the path is almost done
-                        robot.autoRPM.Measure = true; //start fly wheels
+                      //  robot.autoRPM.Measure = true; //start fly wheels
+                        robot.launcher.cmdOutfar();
                     }
                 } else {// path is complete we are back at scorePose move to launch
+                    robot.launcher.cmdOutfar();
                     currentStage = stage._50_Launch1;
                 }
                 
-
+break;
 
             case _50_Launch1:
                 if (!follower.isBusy()){
 
-                  robot.autoRPM.Measure = true;
+                //  robot.autoRPM.Measure = true;
                  dolaunch_process();
                       runtime.reset();
                     currentStage = stage._100_end;
                 }
-
+break;
 
             case _100_end:
                 if (!follower.isBusy()) {
@@ -233,7 +249,7 @@ stop();
 
         }
         private void dolaunch_process(){
-
+telemetryMU.addLine("Do Launch process");
             robot.launcherBlocker.cmdUnBlock();
         robot.transitionRoller.cmdSpin();
             robot.intake.cmdFoward();
@@ -256,10 +272,15 @@ stop();
         private void updateTelemetry () {
             telemetryMU.addData("Follower Busy?", follower.isBusy());
             telemetryMU.addData("Current Stage", currentStage);
+            telemetryMU.addData("runtime mm", runtime.milliseconds());
             telemetryMU.addData("x", follower.getPose().getX());
             telemetryMU.addData("y", follower.getPose().getY());
             telemetryMU.addData("heading", Math.toDegrees(follower.getPose().getHeading()));
-            telemetryMU.addData("testing", follower.getChainIndex());
+            telemetryMU.addData("chain Index", follower.getChainIndex());
+            telemetryMU.addData("pickup1aPose", pickup1aPose);
+            telemetryMU.addData("pickup1bPose", pickup1bPose);
+            telemetryMU.addData("ClosestPose", follower.getClosestPose());
+      //      telemetryMU.addData("intake STOP?", robot.intake.AtIntakeStop);
 
             //  telemetryMU.addData("LAST Pose", lastPose);
             //  telemetryMU.addData("Current Target Pose", currentTargetPose);

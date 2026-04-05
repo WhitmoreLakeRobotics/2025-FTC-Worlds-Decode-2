@@ -177,30 +177,10 @@ public class Robot extends BaseHardware {
         turret.loop();
         trapezoidAutoAim.loop();
         lighting.loop();
+        setIntakeLighting(); //naj moved the code to this method to de-clutter the code
+        intake.setIntakeFull( sensors.getBothFilled()); //naj moved
+        //naj need to add stuff to change the status of intake itself
 
-
-        intake.setIntakeFull( sensors.getBothFilled());
-
-
-        if (transitionRoller.CurrentMode == TransitionRoller.Mode.Stop
-                && intake.CurrentMode == Intake.Mode.NTKforward) {
-                lighting.cmdPURPLEi();
-        }
-
-        if (transitionRoller.CurrentMode == TransitionRoller.Mode.Stop
-                && intake.CurrentMode == Intake.Mode.NTKstop) {
-            lighting.cmdORANGEi();
-        }
-
-        if (transitionRoller.CurrentMode == TransitionRoller.Mode.Back
-                && intake.CurrentMode == Intake.Mode.NTKbackward) {
-            lighting.cmdOFFi();
-        }
-
-        if (transitionRoller.CurrentMode == TransitionRoller.Mode.Spin
-                && intake.CurrentMode == Intake.Mode.NTKforward) {
-            lighting.cmdGREENi();
-        }
 
     }
 
@@ -215,9 +195,10 @@ public class Robot extends BaseHardware {
         limey.loop();
         uppies.loop();
         lighting.loop();
+        setIntakeLighting();
 
 
-        intake.setIntakeFull( sensors.getBothFilled());
+      //  intake.setIntakeFull( sensors.getBothFilled());
 
     }
 
@@ -239,9 +220,31 @@ public class Robot extends BaseHardware {
         // lighting.UpdateBaseColor(RevBlinkinLedDriver.BlinkinPattern.WHITE);
     }
 
-    public void safteyCheck() {
-        //when called comfirm flicker is in safe position before spindexing.
-    }
+   public void setIntakeLighting (){
+
+
+
+
+       if (transitionRoller.CurrentMode == TransitionRoller.Mode.Stop
+               && intake.CurrentMode == Intake.Mode.NTKforward) {
+           lighting.cmdPURPLEi();
+       }
+
+       if (transitionRoller.CurrentMode == TransitionRoller.Mode.Stop
+               && intake.CurrentMode == Intake.Mode.NTKstop) {
+           lighting.cmdORANGEi();
+       }
+
+       if (transitionRoller.CurrentMode == TransitionRoller.Mode.Back
+               && intake.CurrentMode == Intake.Mode.NTKbackward) {
+           lighting.cmdOFFi();
+       }
+
+       if (transitionRoller.CurrentMode == TransitionRoller.Mode.Spin
+               && intake.CurrentMode == Intake.Mode.NTKforward) {
+           lighting.cmdGREENi();
+       }
+   }
 
     public double targetDistanceCalc() {
 

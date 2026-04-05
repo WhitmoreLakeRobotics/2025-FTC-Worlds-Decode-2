@@ -5,7 +5,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Field.DecodeField;
 import org.firstinspires.ftc.teamcode.Field.DecodeField.TagPose;
 @Disabled
-public class AutoAim {
+public class AutoAim extends BaseHardware{ // naj added this to comply with standard baseHardware class
 
     private final Limey limey;
     private final Turret turret;
@@ -22,6 +22,13 @@ public class AutoAim {
     private static final double LAUNCHER_X = 0.0;   // MJD
     private static final double LAUNCHER_Y = 0.0;   // MJD
     private static final double LAUNCHER_Z = 0.0;   // MJD
+
+    @Override // naj added this to comply with standard baseHardware class
+    public void init() {}
+    public void init_loop() {}
+    public void start() {}
+    public void stop() {}
+    public void loop() {}
 
     public AutoAim(Limey limey, Turret turret, DriveTrain driveTrain) {
         this.limey = limey;

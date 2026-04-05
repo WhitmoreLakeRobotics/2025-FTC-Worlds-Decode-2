@@ -29,7 +29,7 @@ import java.util.function.Supplier;
 //@Disabled
 public class ppTeleop extends OpMode {
     private Follower follower;
-    public static Pose startingPose; //See ExampleAuto to understand how to use this
+    public static Pose startingPose = new Pose(0,0,0); //naj added the coordinates to pose to fix null error
     private boolean automatedDrive;
     //private Supplier Teleoppath pathChain;
     private TelemetryManager telemetryM;
@@ -153,7 +153,7 @@ public class ppTeleop extends OpMode {
         Runtime.getRuntime();
         //Gameruntime.reset();           <<<<<<<< lights
         //Gameruntime2.reset();              <<<<<<<<<<
-
+        follower.startTeleopDrive(); //naj added to start the method
     }
 
     //*********************************************************************************************
@@ -232,19 +232,19 @@ public class ppTeleop extends OpMode {
                  */
                 follower.setMaxPower(NormalSpeed);
             }
+            follower.setTeleOpDrive(
+                    CommonLogic.joyStickMath(gamepad1.left_stick_y * -1), //naj added joystick math
+                    CommonLogic.joyStickMath(gamepad1.left_stick_x),
+                    CommonLogic.joyStickMath(gamepad1.right_stick_x),
+                    false
 
+            );
         }
 
         if (Math.abs(gamepad1.right_stick_y) > Settings.JOYSTICK_DEADBAND_STICK) {
 
         }
-        follower.setTeleOpDrive(
-                gamepad1.left_stick_y,
-                gamepad1.left_stick_x,
-                gamepad1.right_stick_x,
-                false
 
-        );
         //***********   Pushers
         //if (CommonLogic.oneShot(gamepad1.a, gp1_prev_a)) {
         if (gamepad1.a) {

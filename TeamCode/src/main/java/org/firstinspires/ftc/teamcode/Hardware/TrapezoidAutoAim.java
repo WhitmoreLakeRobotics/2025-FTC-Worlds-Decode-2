@@ -9,13 +9,13 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Autons.TestAuton;
 import org.firstinspires.ftc.teamcode.Common.CommonLogic;
-import org.firstinspires.ftc.teamcode.Tele_Op;
+import org.firstinspires.ftc.teamcode.pedroPathing.ppTeleop;
 
 import java.util.MissingFormatWidthException;
 import java.util.Objects;
 
 
-public class TrapezoidAutoAim {
+public class TrapezoidAutoAim extends BaseHardware{ // naj added this to comply with standard baseHardware class
 
     private Limey limey;
     // private Turret turret;

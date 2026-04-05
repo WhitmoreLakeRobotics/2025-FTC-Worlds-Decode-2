@@ -1,6 +1,7 @@
 //package org.firstinspires.ftc.robotcontroller.external.samples;
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -16,7 +17,7 @@ import org.firstinspires.ftc.teamcode.Hardware.TrapezoidAutoAim;
 import org.firstinspires.ftc.teamcode.pedroPathing.SystemX;
 
 @com.qualcomm.robotcore.eventloop.opmode.TeleOp(name = "Tele_Op", group = "TeleOp")
-//@Disabled
+@Disabled
 public class Tele_Op_old extends OpMode {
     private static final String TAGTeleop = "8492-Teleop";
     //RobotTest robot = new RobotTest();

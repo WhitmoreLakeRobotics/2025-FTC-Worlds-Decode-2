@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 // Auto calculates RPM for launcher
-public class AutoRPM {
+public class AutoRPM extends BaseHardware{ // naj added this to comply with standard baseHardware class
 
     public Telemetry telemetry = null;
     public HardwareMap hardwareMap = null;
