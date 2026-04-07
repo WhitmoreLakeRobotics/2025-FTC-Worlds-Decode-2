@@ -30,7 +30,7 @@ public RevColorSensorV3 NTKAP3;
     public ColorRangeSensor NTKAP1;
     public ColorRangeSensor NTKAP2;
    // public ColorRangeSensor NTKAP3;
-    public ColorRangeSensor Plate;
+   // public ColorRangeSensor Plate;
     public boolean bothFilled = false;
     private boolean sensorStable = false;
     //private Mode CurrentMode = Mode.STOP;
@@ -42,6 +42,7 @@ public RevColorSensorV3 NTKAP3;
     private boolean bNTKAP1detect = false;
     public Distance2 CurrentDistance2 = Distance2.MISSING2;
     public Distance3 CurrentDistance3 = Distance3.MISSING3;
+    public TargetType CurrentTargetType = TargetType.UNKNOWNT;
 
     private double NTKAP1distance = 999;
     private double NTKAP2distance = 999;
@@ -77,6 +78,7 @@ public RevColorSensorV3 NTKAP3;
         NTKAP3 = hardwareMap.get(RevColorSensorV3.class, "NTKAP3");
         NTKAP2 = hardwareMap.get(ColorRangeSensor.class, "NTKAP2");
         NTKAP1 = hardwareMap.get(RevColorSensorV3.class, "NTKAP1");
+       // Plate = hardwareMap.get(RevColorSensorV3.class,"Plate");
         sensorTime.reset();
 
     }
@@ -142,6 +144,12 @@ public RevColorSensorV3 NTKAP3;
         }else{
             sensorStable = false;
         }
+
+        telemetry.addData("Red",NTKAP1.red());
+        telemetry.addData("Blue",NTKAP1.blue());
+        telemetry.addData("Green",NTKAP1.green());
+        telemetry.addData("Plate",CurrentTargetType);
+
         getDistNTKAP1();
         getDistNTKAP2();
         getDistNTKAP3();
@@ -232,6 +240,26 @@ public void stop(){
 
 }
 
+public TargetType cmdPlate(RevColorSensorV3 NTKAP1){
+    int red1 = NTKAP1.red();
+    int green1 = NTKAP1.green();
+    int blue1 = NTKAP1.blue();
+
+    if ((CommonLogic.inRange(red1,TargetType.REDT.red,TargetType.REDT.redTol ))
+            &&(CommonLogic.inRange(blue1,TargetType.REDT.blue,TargetType.REDT.blueTol ))
+            &&(CommonLogic.inRange(green1,TargetType.REDT.green,TargetType.REDT.greenTol))
+    ){
+        return TargetType.REDT;
+    }else if ((CommonLogic.inRange(red1,TargetType.BLUET.red,TargetType.BLUET.redTol ))
+            &&(CommonLogic.inRange(blue1,TargetType.BLUET.blue,TargetType.BLUET.blueTol ))
+            &&(CommonLogic.inRange(green1,TargetType.BLUET.green,TargetType.BLUET.greenTol))
+    ){
+        return TargetType.BLUET;
+    }else {
+        return TargetType.UNKNOWNT;
+    }
+}
+
 public TargetType getSlotArtifact(ColorSensor v3) {
     int red1 = v3.red();
     int green1 = v3.green();
@@ -277,6 +305,8 @@ public TargetType getSlotArtifact(ColorSensor v3) {
 
 
     public enum TargetType {
+        REDT(330,50,130,50,200,50),
+        BLUET(90,50,500,50,170,50),
         GREENT(25, 5, 75,25,1,3 ),
         PURPLET(6, 1, 1, 2, 7,1 ),
         UNKNOWNT(1, 1, 1,1,1,1);

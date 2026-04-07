@@ -118,25 +118,7 @@ public class Tele_Op_old extends OpMode {
         // Most robots need the motor on one side to be reversed to drive forward
         // Reverse the motor that runs backwards when connected directly to the battery
 
-        if(TestAuton.Alliance == "Red"){
-            CurrentAlliance = Alliance.Red;
-        } else if(TestAuton.Alliance == "Blue"){
-            CurrentAlliance = Alliance.Blue;
-        }else if(TestAuton.Alliance == "Unknown"){
-            CurrentAlliance = Alliance.Unknown;
-        }else{
-            CurrentAlliance = Alliance.NoAuto;
-        }
 
-        if(SystemX.Alliance == "Red"){
-            CurrentAlliance = Alliance.Red;
-        } else if(SystemX.Alliance == "Blue"){
-            CurrentAlliance = Alliance.Blue;
-        }else if(SystemX.Alliance == "Unknown"){
-            CurrentAlliance = Alliance.Unknown;
-        }else{
-            CurrentAlliance = Alliance.NoAuto;
-        }
 
     }
 
@@ -186,25 +168,7 @@ public class Tele_Op_old extends OpMode {
         //robot.signalSign.doUP();
         //robot.swing_arm_and_lift.SetPOS(Swing_Arm_And_Lift.Mode.PICKUP);
 
-        if(CurrentAlliance == Alliance.Red){
-            //robot.lighting.cmdREDa();
-            robot.lighting.CurrentTeam = Lighting.Team.RED;
-            robot.trapezoidAutoAim.CurrentTurretColor = TrapezoidAutoAim.TurretColor.Red;
-        }else if(CurrentAlliance == Alliance.Blue){
-           // robot.lighting.cmdBLUEa();
-            robot.lighting.CurrentTeam = Lighting.Team.BLUE;
-            robot.trapezoidAutoAim.CurrentTurretColor = TrapezoidAutoAim.TurretColor.Blue;
-        }else if(CurrentAlliance == Alliance.Unknown){
-           // robot.lighting.cmdPURPLEa();
-            robot.lighting.CurrentTeam = Lighting.Team.UNKNOWN;
-            robot.trapezoidAutoAim.CurrentTurretColor = TrapezoidAutoAim.TurretColor.Unknown;
-        }else if(CurrentAlliance == Alliance.NoAuto){
-           // robot.lighting.cmdYELLOWa();
-            robot.lighting.CurrentTeam = Lighting.Team.UNKNOWN;
-            robot.trapezoidAutoAim.CurrentTurretColor = TrapezoidAutoAim.TurretColor.NoAuto;
-        }else{
 
-        }
 
     }
 
