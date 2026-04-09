@@ -29,7 +29,8 @@ import java.util.function.Supplier;
 //@Disabled
 public class ppTeleop extends OpMode {
     private Follower follower;
-    public static Pose startingPose = new Pose(0,0,0); //naj added the coordinates to pose to fix null error
+    //   public static Pose startingPose = new Pose(0,0,0); //naj added the coordinates to pose to fix null error
+    public static Pose startingPose = CommonLogic.StartEndPose; // naj Pose(0,0,0) or retrieves ending pose of auton,
     private boolean automatedDrive;
     //private Supplier Teleoppath pathChain;
     private TelemetryManager telemetryM;

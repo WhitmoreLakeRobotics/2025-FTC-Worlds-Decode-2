@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.Common;
 
+import com.pedropathing.geometry.Pose;
+
 public class CommonLogic extends Object {
 
     //*********************************************************************************************
@@ -166,5 +168,7 @@ public class CommonLogic extends Object {
         return (delta / P) + F_hold;
 
     }
+
+    public static Pose StartEndPose = new Pose(0,0,0); //for passing the ending pose of auton as the starting pose in teleop
 
 }
