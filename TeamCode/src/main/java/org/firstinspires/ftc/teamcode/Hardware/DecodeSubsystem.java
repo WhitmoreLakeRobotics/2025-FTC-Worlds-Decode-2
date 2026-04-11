@@ -1,8 +1,10 @@
 package org.firstinspires.ftc.teamcode.Hardware;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+
 import org.firstinspires.ftc.teamcode.Field.DecodeField;
 import org.firstinspires.ftc.teamcode.Field.DecodeField.TagPose;
-
+@Disabled
 public class DecodeSubsystem extends BaseHardware {
 
     private Limey limey;

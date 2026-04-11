@@ -26,9 +26,9 @@ public class Lighting extends BaseHardware {
     public int TempColor ;
     public static int TempColorTimeout = 500;
 
-    private Servo AllianceState;
+   // private Servo AllianceState;
     private Servo IntakeState;
-    private Servo LiftOffLight;
+    //private Servo LiftOffLight;
 
     private final static int GAMEPAD_LOCKOUT = 500;
     //public ColorAlliance CurrentColorA = ColorAlliance.OFF;

@@ -1,7 +1,9 @@
 package org.firstinspires.ftc.teamcode.Field;
 
-import java.util.Map;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
+import java.util.Map;
+@Disabled
 public class DecodeField {
 
     // Simple pose container

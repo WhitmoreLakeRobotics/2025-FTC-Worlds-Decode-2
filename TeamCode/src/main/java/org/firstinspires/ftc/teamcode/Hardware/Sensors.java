@@ -27,9 +27,9 @@ public class Sensors extends BaseHardware {
     //private ColorRangeSensor IntakeSensor;
     //private DistanceSensor RearLeftSensor
 public RevColorSensorV3 NTKAP3;
-    public ColorRangeSensor NTKAP1;
+    //public ColorRangeSensor NTKAP1;
     public ColorRangeSensor NTKAP2;
-   // public ColorRangeSensor NTKAP3;
+  //  public ColorRangeSensor NTKAP3;
    // public ColorRangeSensor Plate;
     public boolean bothFilled = false;
     private boolean sensorStable = false;
@@ -39,16 +39,16 @@ public RevColorSensorV3 NTKAP3;
     private int SensorRed;
     private int SensorGreen;
 
-    private boolean bNTKAP1detect = false;
+    //private boolean bNTKAP1detect = false;
     public Distance2 CurrentDistance2 = Distance2.MISSING2;
     public Distance3 CurrentDistance3 = Distance3.MISSING3;
-    public TargetType CurrentTargetType = TargetType.UNKNOWNT;
+    //public TargetType CurrentTargetType = TargetType.UNKNOWNT;
 
-    private double NTKAP1distance = 999;
+    //private double NTKAP1distance = 999;
     private double NTKAP2distance = 999;
     private double NTKAP3distance = 999;
 
-    private ElapsedTime sensorTime = new ElapsedTime();
+    public ElapsedTime sensorTime = new ElapsedTime();
     private final double targRange = 9; // naj changed from 6 because I found the lower sensor often goes though a hole and registered the back end
 
     /**
@@ -148,7 +148,7 @@ public RevColorSensorV3 NTKAP3;
  //       telemetry.addData("Red",NTKAP1.red());
  //       telemetry.addData("Blue",NTKAP1.blue());
  //       telemetry.addData("Green",NTKAP1.green());
-        telemetry.addData("Plate",CurrentTargetType);
+        //telemetry.addData("Plate",CurrentTargetType);
 
   //      getDistNTKAP1();
         getDistNTKAP2();
@@ -188,6 +188,8 @@ public RevColorSensorV3 NTKAP3;
                             CurrentDistance3 == Distance3.FILLED3) //&& bNTKAP1detect)
                     {
                         bothFilled = true;
+                    }else{
+                        bothFilled = false;
                     }
 
 
@@ -220,10 +222,6 @@ public RevColorSensorV3 NTKAP3;
 
     public void cmdResetSensor(){
         sensorTime.reset();
-        sensorStable = false;
-        CurrentDistance2 = Distance2.MISSING2;
-        CurrentDistance3 = Distance3.MISSING3;
-        bothFilled = false;
     }
 
 

@@ -90,17 +90,6 @@ public class LauncherBlocker extends BaseHardware{
      * This method will be called repeatedly in a loop while this op mode is running
      */
     public void loop(){
-
-        if(AtUnBlocked == false){
-            if(runtime.milliseconds() >= waitTime){
-                AtUnBlocked = true;
-            }
-        }
-
-
-
-
-
     }
 
     /**
@@ -125,6 +114,10 @@ public class LauncherBlocker extends BaseHardware{
          AtUnBlocked = true;
          runtime.reset();
      }
+
+    public boolean getAtUnBlocked(){
+        return AtUnBlocked;
+    }
 
      public enum Mode{
          Stop

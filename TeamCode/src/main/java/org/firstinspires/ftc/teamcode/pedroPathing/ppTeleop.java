@@ -24,7 +24,7 @@ import java.util.function.Supplier;
 //package org.firstinspires.ftc.robotcontroller.external.samples;
 
 
-
+@Configurable
 @com.qualcomm.robotcore.eventloop.opmode.TeleOp(name = "ppTeleop", group = "ppTeleop")
 //@Disabled
 public class ppTeleop extends OpMode {
@@ -114,7 +114,7 @@ public class ppTeleop extends OpMode {
         // msStuckDetectStop = Settings.msStuckDetectStop;
 
         telemetry.addData("Tele_Op", "Initialized");
-
+telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
         robot.hardwareMap = hardwareMap;
         robot.telemetry = telemetry;
         //robot.driveTrain.setMaxPower(DriveTrain.DRIVETRAIN_NORMALSPEED);
@@ -164,14 +164,21 @@ public class ppTeleop extends OpMode {
     @Override
     public void loop() {
         follower.update();
+        telemetryM.addData("starting pose", startingPose);
+        telemetryM.addData("Current Pose", follower.getPose());
+        telemetryM.update();
         robot.loop();
         write2Log();
-        tHeading = getTurnDirection();
+        //getHeadDirect();
+        if(gamepad1.a || gamepad1.b || gamepad1.y || gamepad1.x){
+           // tHeading = getHeadDirect();
+        }
+       // tHeading = getHeadDirect(); //getTurnDirection();
         if (Math.abs(gamepad1.right_stick_x) > 0.04) {
             bAutoTurn = false;
         }
         if (gamepad1.right_trigger > 0.4) {
-            tHeading = (int)Math.round(robot.targetAngleCalc());
+           // tHeading = (int)Math.round(robot.targetAngleCalc());
             bAutoTurn = true;
         }
 
@@ -186,8 +193,8 @@ public class ppTeleop extends OpMode {
 
                  */
 
-              //  follower.turnTo(tHeading);
-                follower.turnToDegrees(tHeading);
+                follower.turnTo(Math.toRadians(tHeading));
+                //follower.turnToDegrees(tHeading);
 
             } else if (gamepad1.left_bumper) {
                /* robot.driveTrain.cmdTeleOp(CommonLogic.joyStickMath(gamepad1.left_stick_y * -1),
@@ -195,7 +202,7 @@ public class ppTeleop extends OpMode {
                         robot.driveTrain.autoTurn(tHeading), robot.driveTrain.DTrain_SLOWSPEED);
 
                 */
-                follower.turnToDegrees(tHeading);
+                follower.turnTo(Math.toRadians(tHeading));
                 follower.setMaxPower(SnailSpeed);
             } else {
 
@@ -204,7 +211,7 @@ public class ppTeleop extends OpMode {
                         robot.driveTrain.autoTurn(tHeading), robot.driveTrain.DTrain_NORMALSPEED);
 
                 */
-                follower.turnToDegrees(tHeading);
+                follower.turnTo(Math.toRadians(tHeading));
                 follower.setMaxPower(NormalSpeed);
             }
         } else {
@@ -235,8 +242,8 @@ public class ppTeleop extends OpMode {
             }
             follower.setTeleOpDrive(
                     CommonLogic.joyStickMath(gamepad1.left_stick_y * -1), //naj added joystick math
-                    CommonLogic.joyStickMath(gamepad1.left_stick_x),
-                    CommonLogic.joyStickMath(gamepad1.right_stick_x),
+                    CommonLogic.joyStickMath(gamepad1.left_stick_x * -1),
+                    CommonLogic.joyStickMath(gamepad1.right_stick_x * -1),
                     false
 
             );
@@ -363,7 +370,7 @@ public class ppTeleop extends OpMode {
             robot.intake.cmdFoward();
             robot.bCkSenors = true;
             robot.transitionRoller.cmdSpin();
-            robot.sensors.cmdResetSensor();
+           // robot.sensors.cmdResetSensor();
             robot.lighting.cmdGREENi();
         }
 
@@ -375,16 +382,19 @@ public class ppTeleop extends OpMode {
 
         if (CommonLogic.oneShot(gamepad2.y, gp2_prev_y)) {
             NoLaunch();
+            robot.autoRPM.Measure = false;
         }
 
         if (CommonLogic.oneShot(gamepad2.x, gp2_prev_x)) {
 
             if (!robot.intake.AtIntakeStop) {
                 robot.intake.cmdStop();
+                //robot.transitionRoller.cmdStop();  // wasnt there before
                 robot.intake.AtIntakeStop = true;
                 robot.lighting.cmdORANGEi();
             } else {
                 robot.intake.cmdBackward();
+                //robot.transitionRoller.cmdBack();  // wasnt there before
                 robot.intake.AtIntakeStop = false;
                 robot.lighting.cmdOFFi();
                 robot.sensors.cmdResetSensor();
@@ -416,6 +426,13 @@ public class ppTeleop extends OpMode {
         }
 
         if (CommonLogic.oneShot(gamepad2.dpad_down, gp2_prev_dpad_down)) {
+            if(!robot.autoRPM.Measure){
+                robot.autoRPM.Measure = true;
+            }
+            else{
+                robot.autoRPM.Measure = false;
+            }
+
         }
 
         if (CommonLogic.oneShot(gamepad2.dpad_right, gp2_prev_dpad_right)) {
@@ -486,9 +503,7 @@ public class ppTeleop extends OpMode {
 
         if(a){
             bAutoTurn = true;
-
             return 59;
-
         }
         else if (b){
             bAutoTurn = true;
@@ -510,7 +525,6 @@ public class ppTeleop extends OpMode {
             bAutoTurn = true;
             return 45;
         }
-
     /*else if(RDP){
         bAutoTurn = true;
         return -6;
@@ -520,14 +534,44 @@ public class ppTeleop extends OpMode {
         return 6;
     }*/
         else {
+           // bAutoTurn = false;
+            return tHeading;
+        }
+    }
+
+    private int getHeadDirect(){
+        boolean a = gamepad1.a;
+        boolean b = gamepad1.b;
+        boolean x = gamepad1.x;
+        boolean y = gamepad1.y;
+        boolean RDP = gamepad1.dpad_right;
+        boolean LDP = gamepad1.dpad_left;
+        double stick = gamepad1.left_stick_x;
+        double stick2 = gamepad1.left_stick_y;
+
+        if(a){
+            bAutoTurn = true;
+            return 180;
+        }
+        else if (b){
+            bAutoTurn = true;
+            return -90;
+        }
+        else if (y){
+            bAutoTurn = true;
+            return 0;
+        }
+        else if(x){
+            bAutoTurn = true;
+            return 90;
+        } else{
+           // bAutoTurn = false;
             return tHeading;
         }
     }
 
     //*********************************************************************************************
     private void  write2Log() {
-
-
     }
 
     /*

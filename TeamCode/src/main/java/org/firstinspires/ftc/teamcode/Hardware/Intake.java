@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Hardware;
 
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
@@ -20,6 +21,7 @@ public class Intake extends BaseHardware {
     public Mode CurrentMode = Mode.NTKstop;
 
     public boolean AtIntakeStop = true;
+    public boolean AtUnblocked = false;
 
     public static final double stopSpeed = 0;
     public static final double inSpeed = -1;
@@ -28,6 +30,7 @@ public class Intake extends BaseHardware {
 
     //private ElapsedTime loopTime = new ElapsedTime();
     private final double targRange = 6;
+
 
     public void init() {
 
@@ -51,10 +54,10 @@ public class Intake extends BaseHardware {
 
     public void loop() {
 
-       if(IntakeFull && !robot.launcherBlocker.AtUnBlocked){
-           cmdStop();
-           robot.transitionRoller.cmdStop();
-       }
+      // if(IntakeFull && !AtUnblocked){
+     //      cmdStop();
+           //robot.cmdTRStop();
+       //}
 
     }
 
@@ -69,6 +72,7 @@ public class Intake extends BaseHardware {
     public void cmdBackward() {
         CurrentMode = Mode.NTKbackward;
         NTKM01.setPower(outSpeed);
+        //robot.cmdSensorsReset();
      //   lighting.cmdGREENi();
      //   sensors.cmdResetSensor();
         //loopTime.reset();
@@ -77,6 +81,7 @@ public class Intake extends BaseHardware {
     public void cmdFoward() {
         CurrentMode = Mode.NTKforward;
         NTKM01.setPower(inSpeed);
+        //robot.sensors.sensorTime.reset();
         //sensorTime.reset();
         //loopTime.reset();
          // MJD: LED feedback for intake running
@@ -107,4 +112,5 @@ public class Intake extends BaseHardware {
     public void setIntakeFull(boolean bStatus){
         IntakeFull = bStatus;
     }
+    public void setAtUnblocked(boolean bStatus){AtUnblocked = bStatus;}
 }

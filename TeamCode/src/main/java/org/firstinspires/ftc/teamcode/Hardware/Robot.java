@@ -38,7 +38,7 @@ public class Robot extends BaseHardware {
     private double slowModeMultiplier = 0.5;
     public boolean bCkSenors = false;
     public boolean TeleOpRunning = false;
-
+    public boolean ResetSensor = false;
 
 
     //auto align constants
@@ -169,7 +169,6 @@ public class Robot extends BaseHardware {
       //  driveTrain.loop();
         //. lighting.loop();
         sensors.loop();
-        intake.loop();
         launcher.loop();
         launcherBlocker.loop();
         transitionRoller.loop();
@@ -179,8 +178,25 @@ public class Robot extends BaseHardware {
     //    turret.loop();
     //    trapezoidAutoAim.loop();
         lighting.loop();
+        intake.loop();
         setIntakeLighting(); //naj moved the code to this method to de-clutter the code
         intake.setIntakeFull( sensors.getBothFilled()); //naj moved
+        intake.setAtUnblocked( launcherBlocker.getAtUnBlocked());
+
+        if(sensors.bothFilled && !launcherBlocker.AtUnBlocked){
+            intake.cmdStop();
+           transitionRoller.cmdStop();
+        }
+
+        if((intake.CurrentMode == Intake.Mode.NTKforward || intake.CurrentMode == Intake.Mode.NTKbackward) && ResetSensor){
+            sensors.sensorTime.reset();
+            ResetSensor = false;
+        }
+
+        if(intake.CurrentMode == Intake.Mode.NTKstop){
+            ResetSensor = true;
+        }
+
         //naj need to add stuff to change the status of intake itself
 
 
@@ -220,6 +236,13 @@ public class Robot extends BaseHardware {
   //      trapezoidAutoAim.stop();
         lighting.stop();
         // lighting.UpdateBaseColor(RevBlinkinLedDriver.BlinkinPattern.WHITE);
+    }
+
+    public void cmdSensorsReset(){
+        sensors.sensorTime.reset();
+    }
+    public void cmdTRStop(){
+        transitionRoller.cmdStop();
     }
 
    public void setIntakeLighting (){
