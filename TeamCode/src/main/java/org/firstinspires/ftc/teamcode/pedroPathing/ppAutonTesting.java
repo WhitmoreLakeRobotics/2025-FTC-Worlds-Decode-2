@@ -47,7 +47,7 @@ public class ppAutonTesting extends OpMode {
     public static Pose startPose = new Pose(86, 8, Math.toRadians(90)); // Start Pose of our robot.
     public static Pose scorePose = new Pose(90, 13, Math.toRadians(76)); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
     //private final Pose scorePose = new Pose(wallScoreX, wallScoreY, wallScoreH); // seeing if configurables work for this. Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
-    public static Pose scorePoseAP = new Pose(86, 20, Math.toRadians(76));
+    public static Pose scorePoseAP = new Pose(90, 15, Math.toRadians(76));
     public static Pose pickup1aPose = new Pose(100, 13, Math.toRadians(0)); // Highest (First Set) of Artifacts from the Spike Mark.
     public static Pose pickup1bPose = new Pose(130, 9, Math.toRadians(0)); // (First Set) of Artifacts picked up.
     public static Pose pickup1bPoseC = new Pose(1, 27, Math.toRadians(200));
@@ -139,8 +139,8 @@ updateTelemetry();
                 if(!follower.isBusy()){
                     //follower.followPath(scorePreload, true);
                     follower.followPath(scorePreload, true);
-                    robot.launcher.cmdOutfar();
-                   // robot.autoRPM.Measure = true;
+                 //   robot.launcher.cmdOutfar();
+                    robot.autoRPM.Measure = true;
                     runtime.reset();
                     currentStage = stage._30_Launch2;
 
@@ -149,7 +149,7 @@ updateTelemetry();
 
 
             case _30_Launch2:
-                if (!follower.isBusy() || runtime.milliseconds() > 1000) {
+                if (!follower.isBusy() || runtime.milliseconds() > 1500) {
                     dolaunch_process();
                     currentStage = stage._40_RunningCornerPickup;
                     runtime.reset();
@@ -158,10 +158,10 @@ updateTelemetry();
 
 
             case _40_RunningCornerPickup:
-                if (runtime.milliseconds() > 500) {
+                if (runtime.milliseconds() > 1500) {
                     telemetryMU.addLine("launch done");
-                    robot.launcherBlocker.cmdBlock();
-                   // robot.autoRPM.Measure = false;
+                   robot.launcherBlocker.cmdBlock();
+                    robot.autoRPM.Measure = false;
                     robot.launcher.cmdStop();
                 }
 
@@ -280,6 +280,7 @@ telemetryMU.addLine("Do Launch process");
             telemetryMU.addData("pickup1aPose", pickup1aPose);
             telemetryMU.addData("pickup1bPose", pickup1bPose);
             telemetryMU.addData("ClosestPose", follower.getClosestPose());
+         //   telemetryMU.addData("power?", follower.getMaxPowerScaling());
       //      telemetryMU.addData("intake STOP?", robot.intake.AtIntakeStop);
 
             //  telemetryMU.addData("LAST Pose", lastPose);

@@ -35,7 +35,7 @@ public class CompBotConstants { public static FollowerConstants followerConstant
         ;
 
     public static MecanumConstants driveConstants = new MecanumConstants()
-            .maxPower(0.3) //this should be 1 for tuning
+            .maxPower(0.15) //this should be 1 for tuning
             .rightFrontMotorName("RDM1")
             .rightRearMotorName("RDM2")
             .leftRearMotorName("LDM2")

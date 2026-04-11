@@ -100,11 +100,13 @@ public class Robot extends BaseHardware {
         autoRPM.hardwareMap = this.hardwareMap;
         autoRPM.telemetry = this.telemetry;
         autoRPM.init();
+/*
 
         turret = new Turret();
         turret.hardwareMap = this.hardwareMap;
         turret.telemetry = this.telemetry;
         turret.init();
+*/
 
         lighting = new Lighting();
         lighting.hardwareMap = this.hardwareMap;
@@ -117,11 +119,11 @@ public class Robot extends BaseHardware {
         sensors.init();
 
         autoAim = new AutoAim(limey, turret, driveTrain);
-
+/*
         trapezoidAutoAim = new TrapezoidAutoAim();
         trapezoidAutoAim.hardwareMap = this.hardwareMap;
         trapezoidAutoAim.telemetry = this.telemetry;
-        trapezoidAutoAim.init();
+        trapezoidAutoAim.init();*/
     }
 
     @Override
@@ -137,8 +139,8 @@ public class Robot extends BaseHardware {
         limey.init_loop();
         uppies.init_loop();
         autoRPM.init_loop();
-        turret.init_loop();
-        trapezoidAutoAim.init_loop();
+       // turret.init_loop();
+      //  trapezoidAutoAim.init_loop();
         lighting.init_loop();
     }
 
@@ -155,8 +157,8 @@ public class Robot extends BaseHardware {
         limey.start();
         uppies.start();
         autoRPM.start();
-        turret.start();
-        trapezoidAutoAim.start();
+ //       turret.start();
+ //       trapezoidAutoAim.start();
         lighting.start();
 
         // lighting.UpdateBaseColor(RevBlinkinLedDriver.BlinkinPattern.WHITE);
@@ -174,8 +176,8 @@ public class Robot extends BaseHardware {
         limey.loop();
         uppies.loop();
         autoRPM.loop();
-        turret.loop();
-        trapezoidAutoAim.loop();
+    //    turret.loop();
+    //    trapezoidAutoAim.loop();
         lighting.loop();
         setIntakeLighting(); //naj moved the code to this method to de-clutter the code
         intake.setIntakeFull( sensors.getBothFilled()); //naj moved
@@ -214,8 +216,8 @@ public class Robot extends BaseHardware {
         limey.stop();
         uppies.stop();
         autoRPM.stop();
-        turret.stop();
-        trapezoidAutoAim.stop();
+  //      turret.stop();
+  //      trapezoidAutoAim.stop();
         lighting.stop();
         // lighting.UpdateBaseColor(RevBlinkinLedDriver.BlinkinPattern.WHITE);
     }

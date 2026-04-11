@@ -77,7 +77,7 @@ public RevColorSensorV3 NTKAP3;
 
         NTKAP3 = hardwareMap.get(RevColorSensorV3.class, "NTKAP3");
         NTKAP2 = hardwareMap.get(ColorRangeSensor.class, "NTKAP2");
-        NTKAP1 = hardwareMap.get(RevColorSensorV3.class, "NTKAP1");
+    //    NTKAP1 = hardwareMap.get(RevColorSensorV3.class, "NTKAP1");
        // Plate = hardwareMap.get(RevColorSensorV3.class,"Plate");
         sensorTime.reset();
 
@@ -145,20 +145,22 @@ public RevColorSensorV3 NTKAP3;
             sensorStable = false;
         }
 
-        telemetry.addData("Red",NTKAP1.red());
-        telemetry.addData("Blue",NTKAP1.blue());
-        telemetry.addData("Green",NTKAP1.green());
+ //       telemetry.addData("Red",NTKAP1.red());
+ //       telemetry.addData("Blue",NTKAP1.blue());
+ //       telemetry.addData("Green",NTKAP1.green());
         telemetry.addData("Plate",CurrentTargetType);
 
-        getDistNTKAP1();
+  //      getDistNTKAP1();
         getDistNTKAP2();
         getDistNTKAP3();
+/*
 
         if (NTKAP1distance <= targRange && sensorStable) {
         bNTKAP1detect = true;
         } else {
             bNTKAP1detect = false;
         }
+*/
 
 
         if (NTKAP2distance <= targRange && sensorStable) {
@@ -183,8 +185,8 @@ public RevColorSensorV3 NTKAP3;
         //if (CurrentMode == Intake.Mode.NTKforward) {
 
                     if(CurrentDistance2 == Distance2.FILLED2 &&
-                            CurrentDistance3 == Distance3.FILLED3 &&
-                        bNTKAP1detect){
+                            CurrentDistance3 == Distance3.FILLED3) //&& bNTKAP1detect)
+                    {
                         bothFilled = true;
                     }
 
@@ -239,7 +241,7 @@ public RevColorSensorV3 NTKAP3;
 public void stop(){
 
 }
-
+/*
 public TargetType cmdPlate(RevColorSensorV3 NTKAP1){
     int red1 = NTKAP1.red();
     int green1 = NTKAP1.green();
@@ -258,7 +260,7 @@ public TargetType cmdPlate(RevColorSensorV3 NTKAP1){
     }else {
         return TargetType.UNKNOWNT;
     }
-}
+}*/
 
 public TargetType getSlotArtifact(ColorSensor v3) {
     int red1 = v3.red();
@@ -280,9 +282,9 @@ public TargetType getSlotArtifact(ColorSensor v3) {
     }
 
 }
-    private void getDistNTKAP1() {
-        NTKAP1distance = NTKAP1.getDistance(DistanceUnit.CM);
-    }
+ //   private void getDistNTKAP1() {
+ //       NTKAP1distance = NTKAP1.getDistance(DistanceUnit.CM);
+ //   }
 
     private void getDistNTKAP2() {
         NTKAP2distance = NTKAP2.getDistance(DistanceUnit.CM);
